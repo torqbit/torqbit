@@ -4,7 +4,7 @@ export default {
     colorText: "#939db8",
     colorBgContainer: "#283040",
     colorBorder: "#374362",
-    colorTextPlaceholder: "#666",
+    colorTextPlaceholder: "#888",
     colorPrimary: "#5b63d3",
 
     colorSplit: "#2f3647",
@@ -14,6 +14,12 @@ export default {
   components: {
     Layout: {
       bodyBg: "#202433",
+    },
+    DatePicker: {
+      colorBgContainer: "#283040",
+      boxShadowSecondary: "none",
+      multipleItemBg: "#283040",
+      colorTextDisabled: "#666",
     },
     Statistic: {
       contentFontSize: 12,
@@ -57,7 +63,7 @@ export default {
       colorBorderSecondary: "#2f3647",
     },
     Form: {
-      labelColor: "#888",
+      labelColor: "#939db8",
     },
     Button: {
       colorBgContainer: "#374362",
@@ -73,9 +79,11 @@ export default {
       activeBg: "#222938",
 
       hoverBg: "#222938",
-      colorTextPlaceholder: "#939db8",
 
       activeBorderColor: "#939db8",
+    },
+    InputNumber: {
+      colorTextPlaceholder: "#888",
     },
 
     Select: {
@@ -85,7 +93,7 @@ export default {
       colorBgContainer: "#283040",
       colorBgElevated: "#283040",
       optionSelectedBg: "#202433",
-      colorTextPlaceholder: "#939db8",
+      // colorTextPlaceholder: "#939db8",
       activeShadow: "none",
     },
 

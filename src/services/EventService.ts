@@ -108,6 +108,7 @@ export interface IEventUpdate {
   price?: number;
   eventInstructions?: string;
   eventMode?: EventMode;
+  registrationEndDate?: Date;
   eventLink?: string;
   certificate?: boolean;
   location?: string;

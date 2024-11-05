@@ -95,6 +95,7 @@ ul {
   --strike: #ad5742;
   --theme-btn-bg: #fff;
   --label-color: #68696d;
+  --font-placeholder: "#888";
 
   --container-width: 1000px;
 
@@ -141,7 +142,7 @@ ul {
   --mktg-card-bg: #202433;
   --wave-color: #153953;
   --font-label: #888;
-
+  --font-placeholder: #888;
   --font-warning: #faad14;
   --hover-text: #c4c4c4;
   --btn-primary: #5b63d3;
@@ -221,6 +222,21 @@ a {
   body {
     color: white;
     background: black;
+  }
+}
+
+/* Datepicker  */
+
+.ant-picker-dropdown .ant-picker-panel-container .ant-picker-panel {
+  background-color: var(--bg-primary);
+  button {
+    color: var(--font-secondary);
+  }
+  .ant-btn-primary {
+    color: #fff;
+  }
+  li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+    background-color: var(--bg-secondary);
   }
 }
 
@@ -1039,8 +1055,4 @@ a {
 
 .ant-select .ant-select-arrow {
   color: var(--font-secondary);
-}
-
-.ant-input-number ::placeholder {
-  color: var(--placeholder) !important;
 }
