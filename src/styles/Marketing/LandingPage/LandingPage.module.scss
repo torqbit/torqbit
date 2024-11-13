@@ -3,22 +3,27 @@
 .navBarContainer {
   position: relative;
   margin: 0 auto;
-  z-index: 1;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
 
   nav {
-    position: absolute;
+    position: fixed;
+    top: 0;
+    z-index: 10;
     background-color: var(--bg-primary);
-    height: 50px;
-    width: 800px;
-    top: 25px;
-    border-radius: 30px;
+    height: 60px;
+    width: 100%;
     display: flex;
     align-items: center;
+    box-shadow: var(--box-shadow);
+    backdrop-filter: blur(10px);
+    background: var(--bg-header);
+
     justify-content: space-between;
     padding: 5px 15px;
+
     box-shadow: var(--box-shadow);
     .contact_button {
       width: 100%;
@@ -103,17 +108,24 @@
 // Hero
 
 .heroWrapper {
-  width: 100%;
   position: relative;
   z-index: 1;
   background: var(--hero-gradient);
   min-height: 50vh;
 
+  .hero_img_bg {
+    background-color: var(--bg-secondary);
+    height: 300px;
+
+    margin-top: -400px;
+  }
+
   .heroContentContainer {
     position: relative;
-    width: 700px;
+    max-width: var(--marketing-container-width);
+
     margin: 0 auto;
-    padding: 200px 0;
+    padding: 100px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -127,9 +139,20 @@
       border: 4px solid transparent;
       margin-bottom: 25px;
     }
+    img {
+      width: 1000px;
+      height: auto;
+      margin: 0 auto;
+    }
 
     del {
       color: var(--strike);
+    }
+
+    h1,
+    p {
+      max-width: 700px;
+      margin: 20 auto;
     }
 
     h1 {
@@ -191,7 +214,9 @@
   & > img {
     margin: -200px auto 50px;
     margin-top: -200px;
-    z-index: 5;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
     position: relative;
   }
 }
@@ -477,6 +502,9 @@
 
   .hero__img {
     & > img {
+      height: auto;
+      width: 80vw;
+
       margin: -100px auto 50px;
     }
   }
@@ -553,12 +581,25 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    flex-direction: column;
+
+    .hero_img_bg {
+      height: 150px;
+      width: 100%;
+      margin-top: -250px;
+    }
+
     .heroContentContainer {
       width: 100vw;
       padding: 150px 0;
 
       h1 {
         font-size: 35px;
+      }
+      img {
+        width: 80vw;
+        height: auto;
+        margin: 0 auto;
       }
 
       button {

@@ -1,4 +1,5 @@
 import SvgIcons from "@/components/SvgIcons";
+import { Dayjs } from "dayjs";
 import appConstant from "@/services/appConstant";
 const md5 = require("md5");
 
@@ -310,4 +311,10 @@ export const getCertificateDescripiton2 = (objectType: string, authorName: strin
     default:
       return "";
   }
+};
+
+export const roundToNearestStep = (time: Dayjs, step: number) => {
+  const minutes = time.minute();
+  const roundedMinutes = Math.ceil(minutes / step) * step;
+  return time.minute(roundedMinutes).second(0);
 };

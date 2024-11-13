@@ -3,20 +3,22 @@ import { FC } from "react";
 import styles from "@/styles/Marketing/LandingPage/LandingPage.module.scss";
 import { Space } from "antd";
 import Link from "next/link";
-import { User } from "@prisma/client";
+import { Theme, User } from "@prisma/client";
+import Image from "next/image";
+import { useAppContext } from "@/components/ContextApi/AppContext";
 
 const MarketingHero: FC<{ isMobile: boolean; user: User }> = ({ isMobile, user }) => {
+  const { globalState } = useAppContext();
   return (
     <>
       <div className={styles.heroContentContainer}>
-        <div className={styles.preview__tag}>Currently available for preview</div>
         <h1>
-          Become <del>fullstack</del>
-          <br /> Product Developer
+          Become a <del>Coder</del>
+          <br /> Product Builder
         </h1>
         <p>
-          Transform into an independent freelancer or tech entrepreneur or the most demanded software developer by
-          building a website builder
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores rerum voluptatum perferendis autem
+          veritatis nostrum. Libero aliquam dignissimos sunt voluptatum!
         </p>
 
         <Space size={"large"} style={{ marginBottom: 50 }}>
@@ -27,7 +29,15 @@ const MarketingHero: FC<{ isMobile: boolean; user: User }> = ({ isMobile, user }
             Contact Us
           </a>
         </Space>
+        <Image
+          alt="Website builder screenshot"
+          height={625}
+          width={1200}
+          loading="lazy"
+          src={`/img/${globalState.theme === Theme.dark ? "macbook-dark.png" : "macbook-light.png"}`}
+        />
       </div>
+      <div className={styles.hero_img_bg}></div>
     </>
   );
 };

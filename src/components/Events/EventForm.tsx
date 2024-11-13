@@ -13,6 +13,7 @@ import {
   Radio,
   Select,
   Space,
+  TimePicker,
   Tooltip,
   Upload,
   UploadProps,
@@ -22,14 +23,17 @@ import ImgCrop from "antd-img-crop";
 import { CaretDownOutlined, LoadingOutlined } from "@ant-design/icons";
 import SvgIcons from "@/components/SvgIcons";
 import { postWithFile } from "@/services/request";
-import { createSlug } from "@/lib/utils";
+import { createSlug, roundToNearestStep } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { EventMode, Events, EventType, StateType } from "@prisma/client";
 import TextEditor from "@/components/Editor/Quilljs/Editor";
 import EventService, { IEventUpdate } from "@/services/EventService";
 import { certificateConfig } from "@/lib/certificatesConfig";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { RangePickerProps } from "antd/es/date-picker";
+import moment from "moment";
+import EventTime from "./EventTime";
+
 const EventForm: FC<{ details?: Events }> = ({ details }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
@@ -43,6 +47,124 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
     publish: false,
   });
 
+  // const [timeRange, setTimeRange] = useState<{
+  //   startTime: Dayjs;
+  //   endTime: Dayjs;
+  //   registrationEndTime: Dayjs;
+  // }>({
+  //   startTime: !eventDetail?.startTime ? roundToNearestStep(dayjs(new Date()), 30) : dayjs(eventDetail?.startTime),
+  //   endTime: !eventDetail?.endTime
+  //     ? dayjs(roundToNearestStep(dayjs(new Date()), 30)).add(60, "minute")
+  //     : dayjs(eventDetail?.endTime),
+  //   registrationEndTime: !eventDetail?.registrationEndDate
+  //     ? roundToNearestStep(dayjs(new Date()), 30)
+  //     : dayjs(eventDetail?.registrationEndDate),
+  // });
+  const [timeRange, setTimeRange] = useState<{
+    startTime: number;
+    endTime: number;
+    registrationEndTime: number;
+  }>({
+    startTime: !eventDetail?.startTime
+      ? new Date().getHours() * 60 + 30
+      : new Date(eventDetail.startTime).getHours() * 60,
+    endTime: !eventDetail?.endTime ? new Date().getHours() * 60 + 90 : new Date(eventDetail.endTime).getHours() * 60,
+    registrationEndTime: !eventDetail?.registrationEndDate
+      ? new Date().getHours() * 60
+      : new Date(eventDetail.registrationEndDate).getHours() * 60,
+  });
+
+  const [DateInfo, setDateInfo] = useState<{
+    startDate: Dayjs;
+    endDate: Dayjs;
+    registrationEndDate: Dayjs;
+  }>({
+    startDate: eventDetail?.startTime === ("null" as any) ? dayjs(new Date()) : dayjs(eventDetail?.startTime),
+    endDate: eventDetail?.endTime === ("null" as any) ? dayjs(new Date()) : dayjs(eventDetail?.endTime),
+    registrationEndDate:
+      eventDetail?.registrationEndDate === ("null" as any)
+        ? dayjs(new Date())
+        : dayjs(eventDetail?.registrationEndDate),
+  });
+
+  const onChangeDateInfo = (date: Dayjs, type: string) => {
+    switch (type) {
+      case "start":
+        form.setFieldValue("startTime", date);
+        return setDateInfo({
+          ...DateInfo,
+          startDate: date,
+          endDate: date,
+        });
+      case "end":
+        form.setFieldValue("endTime", date);
+
+        return setDateInfo({
+          ...DateInfo,
+          endDate: date,
+        });
+
+      case "registration":
+        form.setFieldValue("registrationEndDate", date);
+
+        return setDateInfo({
+          ...DateInfo,
+          registrationEndDate: date,
+        });
+      default:
+        break;
+    }
+  };
+
+  // const onChangeTimeRange = (time: Dayjs, type: string) => {
+  //   switch (type) {
+  //     case "start":
+  //       return setTimeRange({
+  //         ...timeRange,
+  //         startTime: time,
+  //         endTime: time.add(60, "minute"),
+  //         registrationEndTime: time,
+  //       });
+  //     case "end":
+  //       return setTimeRange({
+  //         ...timeRange,
+  //         endTime: time,
+  //       });
+
+  //     case "registration":
+  //       return setTimeRange({
+  //         ...timeRange,
+  //         registrationEndTime: time,
+  //       });
+  //     default:
+  //       break;
+  //   }
+  // };
+
+  const onChangeTimeRange = (time: number, type: string) => {
+    console.log(time, type, "this is");
+    switch (type) {
+      case "start":
+        return setTimeRange({
+          startTime: time,
+          endTime: time + 60,
+          registrationEndTime: time,
+        });
+      case "end":
+        return setTimeRange({
+          ...timeRange,
+          endTime: time,
+        });
+
+      case "registration":
+        return setTimeRange({
+          ...timeRange,
+          registrationEndTime: time,
+        });
+      default:
+        break;
+    }
+  };
   let eventTypeList = [EventType.WORKSHOP, EventType.TALK];
   let eventModeList = [EventMode.OFFLINE, EventMode.ONLINE];
 
@@ -117,13 +239,40 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
     }
   };
 
+  const joinDateAndTime = (date: Dayjs, minutes: number) => {
+    // const combinedDateTime = date.hour(time.hour()).minute(time.minute()).second(time.second());
+
+    // const formattedDateTime = combinedDateTime.toDate();
+    // return formattedDateTime;
+
+    const timeFromMinutes = dayjs().startOf("day").add(minutes, "minute");
+
+    const combinedDateTime = date
+      .hour(timeFromMinutes.hour())
+      .minute(timeFromMinutes.minute())
+      .second(timeFromMinutes.second());
+
+    return combinedDateTime.toDate();
+  };
+
   const onPostEvent = (state: StateType, exit?: boolean) => {
     setLoader({ ...loader, publish: true });
 
     let data: IEventUpdate = {
       ...form.getFieldsValue(),
-      endTime: form.getFieldsValue().endTime.toISOString(),
-      startTime: form.getFieldsValue().startTime.toISOString(),
+      registrationEndDate: joinDateAndTime(
+        dayjs(form.getFieldsValue().registrationEndDate ? form.getFieldsValue().registrationEndDate : new Date()),
+        timeRange.registrationEndTime
+      ),
+
+      endTime: joinDateAndTime(
+        dayjs(form.getFieldsValue().endTime ? form.getFieldsValue().endTime : new Date()),
+        timeRange.endTime
+      ),
+      startTime: joinDateAndTime(
+        dayjs(form.getFieldsValue().startTime ? form.getFieldsValue().startTime : new Date()),
+        timeRange.startTime
+      ),
       banner: eventBanner,
       description: eventDetail?.description,
       eventInstructions: eventDetail?.eventInstructions,
@@ -199,7 +348,10 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
   };
 
   const disabledEndDate: RangePickerProps["disabledDate"] = (current) => {
-    return current && current.isBefore(form.getFieldsValue().startTime, "day");
+    return current && current.isBefore(DateInfo.startDate, "day");
+  };
+  const enableRegistrationDate: RangePickerProps["disabledDate"] = (current) => {
+    return current && (current < moment().startOf("day") || current > DateInfo.startDate);
   };
 
   return (
@@ -306,7 +458,7 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
                       {!eventBannerUploading ? (
                         <div style={{ marginTop: 8 }}>Upload banner</div>
                       ) : (
-                        <div style={{ color: "#000" }}>{eventBannerUploading && "Uploading"}</div>
+                        <div>{eventBannerUploading && "Uploading"}</div>
                       )}
                     </button>
                   )}
@@ -375,33 +527,83 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
             </Form.Item>
           </Flex>
 
-          <Flex align="center" gap={40}>
-            <Form.Item
-              name="startTime"
-              label={<span>Start Time</span>}
-              rules={[
-                {
-                  required: true,
-                  message: "Required start time",
-                },
-              ]}
-            >
-              <DatePicker disabledDate={disabledDate} format={"YY/MM/DD HH:mm"} style={{ width: 170 }} showTime />
-            </Form.Item>
+          <Form.Item
+            name="startTime"
+            label={<span>Start Time</span>}
+            rules={[
+              {
+                required: true,
+                message: "Required start time",
+              },
+            ]}
+          >
+            <Flex align="center" gap={40}>
+              <DatePicker
+                disabledDate={disabledDate}
+                value={DateInfo.startDate}
+                format={"DD/MM/YY"}
+                style={{ width: 170 }}
+                onChange={(value) => {
+                  value && onChangeDateInfo(value, "start");
+                }}
+              />
+              {/* <TimePicker
+                hourStep={1}
+                minuteStep={30}
+                onOk={(value) => {
+                  onChangeTimeRange(value, "start");
+                }}
+                format="hh:mm"
+                value={timeRange.startTime}
+                style={{ width: 100 }}
+              /> */}
+              {/* <EventTime currentHour={new Date().getHours()} currentMin={new Date().getMinutes()} /> */}
+              <EventTime
+                min={router.query.id ? timeRange.startTime : new Date().getHours() * 60}
+                onChangeTimeRange={onChangeTimeRange}
+                type="start"
+              />
+            </Flex>
+          </Form.Item>
 
-            <Form.Item
-              name="endTime"
-              label="End Time"
-              rules={[
-                {
-                  required: true,
-                  message: "Required end time",
-                },
-              ]}
-            >
-              <DatePicker disabledDate={disabledEndDate} format={"YY/MM/DD HH:mm"} style={{ width: 170 }} showTime />
-            </Form.Item>
-          </Flex>
+          <Form.Item
+            name="endTime"
+            label="End Time"
+            rules={[
+              {
+                required: true,
+                message: "Required end time",
+              },
+            ]}
+          >
+            <Flex align="center" gap={40}>
+              <DatePicker
+                value={DateInfo.endDate}
+                disabledDate={disabledEndDate}
+                format={"DD/MM/YY"}
+                style={{ width: 170 }}
+                onChange={(value) => {
+                  value && onChangeDateInfo(value, "end");
+                }}
+              />
+              {/* <TimePicker
+                hourStep={1}
+                minuteStep={30}
+                format="hh:mm"
+                onChange={(value) => {
+                  value && onChangeTimeRange(value, "end");
+                }}
+                value={timeRange.endTime}
+                style={{ width: 100 }}
+              /> */}
+              {/* <EventTime currentHour={new Date().getHours()} currentMin={new Date().getMinutes()} /> */}
+              <EventTime
+                min={router.query.id ? timeRange.endTime : new Date().getHours() * 60}
+                onChangeTimeRange={onChangeTimeRange}
+                type="end"
+              />
+            </Flex>
+          </Form.Item>
 
           <Flex align="" gap={40}>
             <Form.Item name="certificate">
@@ -455,7 +657,27 @@ const EventForm: FC<{ details?: Events }> = ({ details }) => {
               },
             ]}
           >
-            <DatePicker disabledDate={disabledDate} format={"YY/MM/DD HH:mm"} style={{ width: 170 }} showTime />
+            <Space size={40}>
+              <DatePicker
+                value={DateInfo.registrationEndDate}
+                disabledDate={enableRegistrationDate}
+                format={"DD/MM/YY"}
+                style={{ width: 170 }}
+                onChange={(value) => {
+                  value && onChangeDateInfo(value, "registration");
+                }}
+              />
+              {/* <TimePicker
+                hourStep={1}
+                minuteStep={30}
+                format="hh:mm"
+                value={timeRange.registrationEndTime}
+                onOk={(value) => {
+                  onChangeTimeRange(value, "registration");
+                }}
+                style={{ width: 100 }}
+              /> */}
+            </Space>
           </Form.Item>
 
           <Form.Item
