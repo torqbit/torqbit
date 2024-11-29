@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "torqbit.fullname" . }}
+  annotations:
+    helm.sh/hook-weight: "0"
+  labels:
+    app: {{ include "torqbit.name" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "torqbit.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "torqbit.name" . }}
+    spec:
+      containers:
+        - name: torqbit
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ index .Values.containers 0 "ports" 0 "containerPort" }}
+          envFrom:
+            - secretRef:
+                name: torqbit-secrets
+            - secretRef:
+                name: mysql-secret
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ index .Values.containers 0 "ports" 0 "containerPort" }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          command:
+            - "/bin/sh"
+          args:
+            - "-c"
+            - "npx prisma db push --accept-data-loss && yarn start"
+      restartPolicy: Always

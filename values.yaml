@@ -1,0 +1,46 @@
+image:
+  repository: torqbit/torqbit
+  tag: 0.1.2-rc3
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceAccount:
+  create: false
+  name: ""
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: "example.local"
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+containers:
+  - name: torqbit
+    image: torqbit/torqbit:0.1.2-rc3
+    envFrom:
+      - secretRef:
+          name: torqbit-secrets
+      - secretRef:
+          name: mysql-secrets
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo hello; sleep 10; done"]
+    ports:
+      - containerPort: 3000
+
+autoscaling:
+  enabled: false
