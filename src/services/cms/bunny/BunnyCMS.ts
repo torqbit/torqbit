@@ -2,8 +2,9 @@ import { BunnyClient } from "./BunnyClient";
 import { baseBunnyConfig, BunnyCMSConfig, BunnyConstants, VideoLibrary } from "@/types/cms/bunny";
 import { apiConstants, APIResponse, APIServerError } from "@/types/apis";
 import { ICMSAuthConfig, IContentProvider } from "../IContentProvider";
-import { ConfigurationState } from "@prisma/client";
+import { ConfigurationState, VideoState } from "@prisma/client";
 import SecretsManager from "@/services/secrets/SecretsManager";
+import { FileUploadResponse, VideoAPIResponse } from "@/types/courses/Course";
 
 export interface BunnyAuthConfig extends ICMSAuthConfig {
   accessKey: string;
@@ -168,7 +169,12 @@ export class BunnyCMS implements IContentProvider<BunnyAuthConfig, BunnyCMSConfi
             }
 
             //update the resolutions and player color and watermark
-            await bunny.updateVideoLibrary(bunnyConfig.vodConfig.vidLibraryId, playerColor, videoResolutions, watermarkUrl);
+            await bunny.updateVideoLibrary(
+              bunnyConfig.vodConfig.vidLibraryId,
+              playerColor,
+              videoResolutions,
+              watermarkUrl
+            );
 
             //update the allowed domains
             await bunny.addAllowedDomainsVOD(bunnyConfig.vodConfig.vidLibraryId, hostURL.hostname);
@@ -352,10 +358,91 @@ export class BunnyCMS implements IContentProvider<BunnyAuthConfig, BunnyCMSConfi
     }
   }
 
-  async uploadCDNImage(authConfig: BunnyAuthConfig, cmsConfig: BunnyCMSConfig): Promise<APIResponse<any>> {
+  async uploadCDNImage(
+    authConfig: BunnyAuthConfig,
+    cmsConfig: BunnyCMSConfig,
+    file: Buffer,
+    path: string
+  ): Promise<APIResponse<string>> {
     //get the storage password
     const storagePassword = await secretsStore.get(cmsConfig.cdnStoragePasswordRef);
     if (storagePassword) {
+      const bunny = new BunnyClient(storagePassword);
+
+      const res = await fetch(
+        bunny.getClientFileUrl(cmsConfig.cdnConfig?.cdnStorageZoneId as number, "static", path),
+        bunny.getClientFileOptions(file)
+      );
+      const uploadRes = await res.json();
+      const fullPath = `static/${path}`;
+
+      return {
+        status: uploadRes.HttpCode,
+        message: uploadRes.Message,
+        success: uploadRes.HttpCode == 201,
+        body: uploadRes.HttpCode == 201 ? `https://${cmsConfig.cdnConfig?.linkedHostname}/${fullPath}` : "",
+      };
+    }
+    throw new Error("Method not implemented.");
+  }
+
+  async uploadVideo(
+    authConfig: BunnyAuthConfig,
+    cmsConfig: BunnyCMSConfig,
+    file: Buffer,
+    title: string
+  ): Promise<APIResponse<VideoAPIResponse>> {
+    const videoPassword = await secretsStore.get(cmsConfig.vodAccessKeyRef);
+    if (videoPassword) {
+      const bunny = new BunnyClient(videoPassword);
+
+      let guid: string;
+      const res = await fetch(
+        bunny.getClientVideoUrl(cmsConfig.vodConfig?.vidLibraryId as number),
+        bunny.getClientPostOptions(title)
+      );
+      const json = await res.json();
+      guid = json.guid;
+      const res_1 = await fetch(
+        bunny.getClientVideoUploadUrl(json.guid, cmsConfig.vodConfig?.vidLibraryId as number),
+        bunny.getClientFileOptions(file)
+      );
+      const uploadedData = await res_1.json();
+
+      const videoResult = await fetch(
+        bunny.getClientVideoUploadUrl(guid, cmsConfig.vodConfig?.vidLibraryId as number),
+        bunny.getClientVideoOption()
+      );
+      let videoData = await videoResult.json();
+      let state: string = "";
+      if (videoData.status === 0 || videoData.status === 1 || videoData.status === 2 || videoData.status === 3) {
+        state = VideoState.PROCESSING;
+      }
+      if (videoData.status === 4) {
+        state = VideoState.READY;
+      }
+      if (videoData.status === 5 || videoData.status === 6) {
+        state = VideoState.FAILED;
+      }
+      return {
+        status: videoResult.status,
+        success: videoResult.status == 200,
+        message: videoResult.statusText,
+        body: {
+          statusCode: videoResult.status,
+          success: videoResult.status == 200,
+          message: videoResult.statusText,
+          video: {
+            videoId: videoData.guid as string,
+            thumbnail: `https://${cmsConfig.cdnConfig?.linkedHostname}/${videoData.guid}/${videoData.thumbnailFileName}`,
+            previewUrl: `https://${cmsConfig.cdnConfig?.linkedHostname}/${videoData.guid}/preview.webp`,
+            videoUrl: `https://iframe.mediadelivery.net/embed/${cmsConfig.vodConfig?.vidLibraryId}/${videoData.guid}`,
+            mediaProviderName: "bunny",
+            state: state as VideoState,
+            videoDuration: videoData.length,
+          },
+        },
+      };
     }
     throw new Error("Method not implemented.");
   }

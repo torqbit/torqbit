@@ -21,7 +21,12 @@ export interface IContentProvider<T extends ICMSAuthConfig, U> {
     watermarkUrl?: string
   ): Promise<APIResponse<void>>;
 
-  saveCDNConfig(authConfig: T, brandName: string, mainStorageRegion: string, replicatedRegions: string[]): Promise<APIResponse<void>>;
+  saveCDNConfig(
+    authConfig: T,
+    brandName: string,
+    mainStorageRegion: string,
+    replicatedRegions: string[]
+  ): Promise<APIResponse<void>>;
 
   configureObjectStorage(
     authConfig: T,
@@ -30,5 +35,6 @@ export interface IContentProvider<T extends ICMSAuthConfig, U> {
     replicatedRegions: string[]
   ): Promise<APIResponse<void>>;
 
-  uploadCDNImage(authConfig: T, cmsConfig: U): Promise<APIResponse<any>>;
+  uploadCDNImage(authConfig: T, cmsConfig: U, file: Buffer, path: string): Promise<APIResponse<any>>;
+  uploadVideo(authConfig: T, cmsConfig: U, file: Buffer, title: string): Promise<APIResponse<any>>;
 }

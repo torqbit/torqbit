@@ -21,7 +21,7 @@ type VODClientConfig = {
   replicatedRegions: string[];
   videoResolutions: string[];
   playerColor: string;
-  watermarkUrl?: string;
+  watermarkUrl: string | undefined;
 };
 
 class cmsClient {
@@ -46,7 +46,11 @@ class cmsClient {
     });
   };
 
-  addVod = (data: VODClientConfig, onSuccess: (response: ApiResponse) => void, onFailure: (message: string) => void) => {
+  addVod = (
+    data: VODClientConfig,
+    onSuccess: (response: ApiResponse) => void,
+    onFailure: (message: string) => void
+  ) => {
     postFetch(data, `/api/v1/admin/config/cms/vod`).then((result) => {
       if (result.status == 200 || result.status == 201) {
         result.json().then((r) => {
@@ -62,7 +66,11 @@ class cmsClient {
     });
   };
 
-  addStorage = (config: StorageConfig, onSuccess: (response: APIResponse<any>) => void, onFailure: (message: string) => void) => {
+  addStorage = (
+    config: StorageConfig,
+    onSuccess: (response: APIResponse<any>) => void,
+    onFailure: (message: string) => void
+  ) => {
     postFetch(config, `/api/v1/admin/config/cms/storage`).then((result) => {
       if (result.ok) {
         result.json().then((r) => {
@@ -78,7 +86,11 @@ class cmsClient {
     });
   };
 
-  getConfigDetail = (provider: string, onSuccess: (response: ApiResponse) => void, onFailure: (message: string) => void) => {
+  getConfigDetail = (
+    provider: string,
+    onSuccess: (response: ApiResponse) => void,
+    onFailure: (message: string) => void
+  ) => {
     postFetch({ provider }, `/api/v1/admin/config/cms/get`).then((result) => {
       if (result.status == 200 || result.status == 201) {
         result.json().then((r) => {

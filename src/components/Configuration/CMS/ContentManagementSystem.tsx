@@ -48,7 +48,13 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
       optional: false,
 
       input: (
-        <Select labelInValue optionLabelProp='label' style={{ width: 250 }} mode='tags' placeholder='Choose replication regions'>
+        <Select
+          labelInValue
+          optionLabelProp="label"
+          style={{ width: 250 }}
+          mode="tags"
+          placeholder="Choose replication regions"
+        >
           {replicationRegions.map((region, i) => {
             return (
               <Select.Option key={i} value={`${region.code}`}>
@@ -68,7 +74,7 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
       description:
         "Automatically watermark uploaded videos. The watermark is encoded into the video itself and cannot be removed after encoding.",
       input: (
-        <Flex className={styles.watermark__options} align='center' gap={20}>
+        <Flex className={styles.watermark__options} align="center" gap={20}>
           <div
             onClick={() => {
               if (iconUrl === selectedWatermark) {
@@ -77,8 +83,9 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                 setWatermark(iconUrl);
               }
             }}
-            className={iconUrl === selectedWatermark ? styles.selected__watermark : ""}>
-            <img src={iconUrl} alt='torqbit icon' />
+            className={iconUrl === selectedWatermark ? styles.selected__watermark : ""}
+          >
+            <img src={iconUrl} alt="torqbit icon" />
           </div>
           <div
             onClick={() => {
@@ -88,8 +95,9 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                 setWatermark(logoUrl);
               }
             }}
-            className={logoUrl === selectedWatermark ? styles.selected__watermark : ""}>
-            <img src={logoUrl} alt='torqbit logo' />
+            className={logoUrl === selectedWatermark ? styles.selected__watermark : ""}
+          >
+            <img src={logoUrl} alt="torqbit logo" />
           </div>
         </Flex>
       ),
@@ -102,7 +110,13 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
       description:
         "Select te enabled resolutions that will be encoded. Only resolutions smaller than or equal to the original video resolutions will be used during encoding.",
       input: (
-        <Select labelInValue optionLabelProp='label' style={{ width: 250 }} mode='tags' placeholder='Select resolutions'>
+        <Select
+          labelInValue
+          optionLabelProp="label"
+          style={{ width: 250 }}
+          mode="tags"
+          placeholder="Select resolutions"
+        >
           {cmsConstant.videoResolutions.map((resolution, i) => {
             return (
               <Select.Option key={i} value={`${resolution.value}`}>
@@ -119,9 +133,10 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
   const cdnItems: IConfigForm[] = [
     {
       title: "Main Storage Region",
-      description: "Give a name to the storage zone that will be storing all the static images for courses, events and users",
+      description:
+        "Give a name to the storage zone that will be storing all the static images for courses, events and users",
       input: (
-        <Select labelInValue style={{ width: 250 }} placeholder='Choose the main region'>
+        <Select labelInValue style={{ width: 250 }} placeholder="Choose the main region">
           {replicationRegions.map((region, i) => {
             return (
               <Select.Option key={i} value={`${region.code}`}>
@@ -138,7 +153,13 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
       title: "Choose Replication Regions",
       description: "Choose regions from where the video will be accessed and streamed to the users",
       input: (
-        <Select labelInValue optionLabelProp='label' style={{ width: 250 }} mode='tags' placeholder='Choose replication regions'>
+        <Select
+          labelInValue
+          optionLabelProp="label"
+          style={{ width: 250 }}
+          mode="tags"
+          placeholder="Choose replication regions"
+        >
           {replicationRegions.map((region, i) => {
             return (
               <Select.Option key={i} value={`${region.code}`}>
@@ -203,8 +224,12 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
     setVodLoading(true);
     let data = {
       ...videoForm.getFieldsValue(),
-      replicatedRegions: videoForm.getFieldsValue().replicatedRegions.map((r: any) => (typeof r !== "object" ? r : r.value)),
-      videoResolutions: videoForm.getFieldsValue().videoResolutions.map((r: any) => (typeof r !== "object" ? r : r.value)),
+      replicatedRegions: videoForm
+        .getFieldsValue()
+        .replicatedRegions.map((r: any) => (typeof r !== "object" ? r : r.value)),
+      videoResolutions: videoForm
+        .getFieldsValue()
+        .videoResolutions.map((r: any) => (typeof r !== "object" ? r : r.value)),
       watermarkUrl: selectedWatermark,
       brandName: siteConfig.brand?.name,
       playerColor: siteConfig.brand?.brandColor,
@@ -292,7 +317,7 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
   return (
     <>
       {pageLoading ? (
-        <SpinLoader className='settings__spinner' />
+        <SpinLoader className="settings__spinner" />
       ) : (
         <section>
           {contextHolder}
@@ -300,40 +325,42 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
 
           <Steps
             current={current}
-            status='finish'
-            size='small'
+            status="finish"
+            size="small"
             progressDot
-            direction='vertical'
+            direction="vertical"
             items={[
               {
                 title: (
                   <ConfigFormLayout
                     formTitle={"Configure Bunny.net"}
                     extraContent={
-                      <Flex align='center' gap={10}>
+                      <Flex align="center" gap={10}>
                         {current < 0 && <Button onClick={() => accessKeyForm.resetFields()}>Reset</Button>}
 
                         {current > 0 ? (
                           <Tag style={{ padding: "5px 10px" }}>
-                            <Flex align='center' gap={5}>
+                            <Flex align="center" gap={5}>
                               <i style={{ lineHeight: 0, fontSize: 15 }}>{SvgIcons.checkFilled}</i>
                               <span>Connected</span>
                             </Flex>
                           </Tag>
                         ) : (
-                          <Button loading={loading} onClick={() => accessKeyForm.submit()} type='primary'>
+                          <Button loading={loading} onClick={() => accessKeyForm.submit()} type="primary">
                             Connect
                           </Button>
                         )}
                       </Flex>
-                    }>
+                    }
+                  >
                     <Form form={accessKeyForm} onFinish={onTestAccessKey} requiredMark={false}>
                       <ConfigForm
                         input={
                           <Form.Item
                             style={{ width: 250 }}
                             name={"accessKey"}
-                            rules={[{ required: true, message: "Access key is required!" }]}>
+                            rules={[{ required: true, message: "Access key is required!" }]}
+                          >
                             {
                               <Input.Password
                                 disabled={current > 1}
@@ -357,11 +384,12 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                 title: (
                   <ConfigFormLayout
                     extraContent={
-                      <Button loading={vodLoading} onClick={() => videoForm.submit()} type='primary'>
+                      <Button loading={vodLoading} onClick={() => videoForm.submit()} type="primary">
                         Save
                       </Button>
                     }
-                    formTitle={"Video On Demand"}>
+                    formTitle={"Video On Demand"}
+                  >
                     <Form form={videoForm} onFinish={onSubmitVideoInfo} requiredMark={false}>
                       {videoItems.map((item, i) => {
                         return (
@@ -370,7 +398,8 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                               <Form.Item
                                 name={item.inputName}
                                 rules={[{ required: !item.optional, message: `Field is required!` }]}
-                                key={i}>
+                                key={i}
+                              >
                                 {item.input}
                               </Form.Item>
                             }
@@ -391,17 +420,19 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                 title: (
                   <ConfigFormLayout
                     extraContent={
-                      <Flex align='center' gap={10}>
+                      <Flex align="center" gap={10}>
                         <Button
                           onClick={() => storageForm.submit()}
-                          type='primary'
+                          type="primary"
                           loading={storageLoading}
-                          disabled={configState == ConfigurationState.STORAGE_CONFIGURED}>
+                          disabled={configState == ConfigurationState.STORAGE_CONFIGURED}
+                        >
                           Save
                         </Button>
                       </Flex>
                     }
-                    formTitle={"File Storage"}>
+                    formTitle={"File Storage"}
+                  >
                     <Form form={storageForm} onFinish={onSubmitStorageForm}>
                       {cdnItems.map((item, i) => {
                         return (
@@ -410,7 +441,8 @@ const ContentManagementSystem: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfi
                               <Form.Item
                                 rules={[{ required: !item.optional, message: `Field is required!` }]}
                                 name={item.inputName}
-                                key={i}>
+                                key={i}
+                              >
                                 {item.input}
                               </Form.Item>
                             }

@@ -2,7 +2,7 @@ import { NextApiResponse, NextApiRequest } from "next";
 import { withMethods } from "@/lib/api-middlewares/with-method";
 import { errorHandler } from "@/lib/api-middlewares/errorHandler";
 import { z } from "zod";
-import { APIResponse } from "@/types/cms/apis";
+import { APIResponse } from "@/types/apis";
 import { ContentManagementService } from "@/services/cms/ContentManagementService";
 import { withUserAuthorized } from "@/lib/api-middlewares/with-authorized";
 
@@ -12,7 +12,7 @@ const vodConfig = z.object({
   replicatedRegions: z.array(z.string()).min(1, "Atleast one region must be specified"),
   videoResolutions: z.array(z.string()),
   playerColor: z.string(),
-  watermarkUrl: z.string(),
+  watermarkUrl: z.string().optional(),
 });
 
 export type VODConfig = z.infer<typeof vodConfig>;

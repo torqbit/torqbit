@@ -6,8 +6,10 @@ import sharp from "sharp";
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export class BunnyClient {
   accessKey: string;
+  vidLibraryUrl: string = "https://video.bunnycdn.com/library";
   constructor(accessKey: string) {
     this.accessKey = accessKey;
+    this.vidLibraryUrl = this.vidLibraryUrl;
   }
 
   getClientHeaders = () => {
@@ -25,6 +27,45 @@ export class BunnyClient {
       body: file,
     };
   };
+
+  getClientVideoUploadUrl(videoId: string, libraryId: number) {
+    return `${this.vidLibraryUrl}/${libraryId}/videos/${videoId}`;
+  }
+
+  getClientPostOptions(title: string) {
+    return {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        AccessKey: this.accessKey as string,
+      },
+      body: JSON.stringify({ title: title }),
+    };
+  }
+
+  getClientVideoOption() {
+    return {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        AccessKey: this.accessKey,
+      },
+    };
+  }
+
+  getClientFileUrl(storageZone: number, mediaPath: string, path: string) {
+    let fullPath = mediaPath;
+    if (fullPath.endsWith("/")) {
+      fullPath = `${path.substring(0, path.length - 1)}${path}`;
+    }
+    fullPath = `${mediaPath}${path}`;
+    return `https://storage.bunnycdn.com/${storageZone}/${fullPath}`;
+  }
+
+  getClientVideoUrl(libraryId: number) {
+    return `${this.vidLibraryUrl}/${libraryId}/videos`;
+  }
 
   handleError = async <T>(response: Response): Promise<APIResponse<T>> => {
     if (response.status == 400) {
@@ -143,7 +184,11 @@ export class BunnyClient {
 
     return fetch(url, options)
       .then((result) => {
-        return new APIResponse<void>(result.ok, result.status, "Added the requested domain name in bunny.net video library");
+        return new APIResponse<void>(
+          result.ok,
+          result.status,
+          "Added the requested domain name in bunny.net video library"
+        );
       })
       .catch((err) => {
         return new APIResponse(false, 500, err);
@@ -206,7 +251,11 @@ export class BunnyClient {
     }
   };
 
-  uploadWatermark = async (watermarkUrl: string, videoLibId: number, update: boolean = false): Promise<APIResponse<void>> => {
+  uploadWatermark = async (
+    watermarkUrl: string,
+    videoLibId: number,
+    update: boolean = false
+  ): Promise<APIResponse<void>> => {
     const downloadImg = await fetch(watermarkUrl);
     if (downloadImg.ok) {
       const url = `https://api.bunny.net/videolibrary/${videoLibId}/watermark`;
@@ -241,6 +290,10 @@ export class BunnyClient {
     };
     const url = `https://api.bunny.net/videolibrary/${videoLibId}/watermark`;
     const deletionResponse = await fetch(url, delOptions);
-    return new APIResponse(deletionResponse.status == 204, deletionResponse.status, "Successfully deleted the watermark");
+    return new APIResponse(
+      deletionResponse.status == 204,
+      deletionResponse.status,
+      "Successfully deleted the watermark"
+    );
   };
 }
