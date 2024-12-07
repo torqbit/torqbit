@@ -49,10 +49,10 @@ const HeroForm: FC<{
         const res = await postRes.json();
 
         if (res.success) {
-          setHeroImages({ ...heroImages, [mode]: `/api/v1/admin/site/image/get/${res.imgName}` });
+          setHeroImages({ ...heroImages, [mode]: `/static/${res.imgName}` });
           setHeroConfig({
             ...heroConfig,
-            banner: { ...heroConfig?.banner, [mode]: `/api/v1/admin/site/image/get/${res.imgName}` },
+            banner: { ...heroConfig?.banner, [mode]: `/static/${res.imgName}` },
           });
         }
       }

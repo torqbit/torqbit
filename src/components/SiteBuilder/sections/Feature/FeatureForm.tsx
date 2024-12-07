@@ -109,8 +109,8 @@ const FeatureForm: FC<{
         const res = await postRes.json();
 
         if (res.success) {
-          setFeatureImages({ ...featureImages, [imageType]: `/api/v1/admin/site/image/get/${res.imgName}` });
-          handleFeatureChange(index, "img", `/api/v1/admin/site/image/get/${res.imgName}`);
+          setFeatureImages({ ...featureImages, [imageType]: `/static/${res.imgName}` });
+          handleFeatureChange(index, "img", `/static/${res.imgName}`);
         }
       }
     } catch (error) {

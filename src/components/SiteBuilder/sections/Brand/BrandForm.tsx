@@ -65,8 +65,8 @@ const BrandForm: FC<{
         const res = await postRes.json();
 
         if (res.success) {
-          setBrandImage({ ...brandImage, [imageType]: `/api/v1/admin/site/image/get/${res.imgName}` });
-          setBrandConfig({ ...brandConfig, [imageType]: `/api/v1/admin/site/image/get/${res.imgName}` });
+          setBrandImage({ ...brandImage, [imageType]: `/static/${res.imgName}` });
+          setBrandConfig({ ...brandConfig, [imageType]: `/static/${res.imgName}` });
         }
       }
     } catch (error) {
