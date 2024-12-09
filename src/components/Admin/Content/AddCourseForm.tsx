@@ -24,7 +24,8 @@ import { RcFile } from "antd/es/upload";
 import { postWithFile } from "@/services/request";
 
 import AddLesson from "./AddLesson";
-import { DEFAULT_THEME, PageSiteConfig } from "@/services/siteConstant";
+import { PageSiteConfig } from "@/services/siteConstant";
+import cmsClient from "@/lib/admin/cms/cmsClient";
 
 const AddCourseForm: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
   const [courseBannerUploading, setCourseBannerUploading] = useState<boolean>(false);
@@ -268,35 +269,34 @@ const AddCourseForm: FC<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", name);
-      formData.append("dir", "/courses/banners/");
+      formData.append("fileType", "banner");
 
       courseThumbnail && formData.append("existingFilePath", courseThumbnail);
 
-      const postRes = await postWithFile(formData, `/api/v1/upload/file/upload`);
-      if (!postRes.ok) {
-        setLoading(false);
-        throw new Error("Failed to upload file");
-      }
-      const res = await postRes.json();
-
-      if (res.success) {
-        let course = {
-          thumbnail: res.fileCDNPath,
-          courseId: Number(router.query.id),
-        };
-        ProgramService.updateCourse(
-          course,
-          (result) => {
-            setCourseThumbnail(res.fileCDNPath);
-            messageApi.success("file uploaded");
-            setCourseBannerUploading(false);
-          },
-          (error) => {
-            setCourseBannerUploading(false);
-            messageApi.error(error);
-          }
-        );
-      }
+      cmsClient.uploadFile(
+        formData,
+        (result) => {
+          let course = {
+            thumbnail: result.fileCDNPath,
+            courseId: Number(router.query.id),
+          };
+          ProgramService.updateCourse(
+            course,
+            (res) => {
+              setCourseThumbnail(result.fileCDNPath);
+              messageApi.success("file uploaded");
+              setCourseBannerUploading(false);
+            },
+            (error) => {
+              setCourseBannerUploading(false);
+              messageApi.error(error);
+            }
+          );
+        },
+        (error) => {
+          messageApi.error(error);
+        }
+      );
     }
   };
 

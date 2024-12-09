@@ -1,4 +1,4 @@
-import { postFetch } from "@/services/request";
+import { postFetch, postWithFile } from "@/services/request";
 import { APIResponse } from "@/types/apis";
 import { BunnyCMSConfig, StorageConfig } from "@/types/cms/bunny";
 import { ConfigurationState } from "@prisma/client";
@@ -9,6 +9,7 @@ interface ApiResponse {
   message: string;
   config: { config: BunnyCMSConfig; state: ConfigurationState };
   regions: { name: string; code: string }[];
+  fileCDNPath: string;
 }
 
 type FailedApiResponse = {
@@ -52,6 +53,26 @@ class cmsClient {
     onFailure: (message: string) => void
   ) => {
     postFetch(data, `/api/v1/admin/config/cms/vod`).then((result) => {
+      if (result.status == 200 || result.status == 201) {
+        result.json().then((r) => {
+          const apiResponse = r as ApiResponse;
+          onSuccess(apiResponse);
+        });
+      } else {
+        result.json().then((r) => {
+          const failedResponse = r as FailedApiResponse;
+          onFailure(failedResponse.error);
+        });
+      }
+    });
+  };
+
+  uploadFile = async (
+    formData: FormData,
+    onSuccess: (response: ApiResponse) => void,
+    onFailure: (message: string) => void
+  ) => {
+    postWithFile(formData, `/api/v1/admin/config/cms/upload/file`).then((result) => {
       if (result.status == 200 || result.status == 201) {
         result.json().then((r) => {
           const apiResponse = r as ApiResponse;

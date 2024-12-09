@@ -95,7 +95,8 @@ export class BunnyClient {
           fileBuffer,
           `thumbnail/${fullName}`,
           zoneName,
-          mainStorageRegion
+          mainStorageRegion,
+          linkedHostname
         );
 
         return uploadResponse.body;
@@ -150,7 +151,8 @@ export class BunnyClient {
     file: Buffer,
     path: string,
     zoneName: string,
-    mainStorageRegion: string
+    mainStorageRegion: string,
+    linkedHostname: string
   ): Promise<APIResponse<string>> => {
     const res = await fetch(
       `https://${this.getCDNbaseEndpoint(mainStorageRegion)}/${zoneName}/${path}`,
@@ -161,7 +163,7 @@ export class BunnyClient {
       status: uploadRes.HttpCode,
       message: uploadRes.Message,
       success: uploadRes.HttpCode == 201,
-      body: uploadRes.HttpCode == 201 ? `${path}` : "",
+      body: uploadRes.HttpCode == 201 ? `https://${linkedHostname}/${path}` : "",
     };
   };
 

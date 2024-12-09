@@ -379,7 +379,8 @@ export class BunnyCMS implements IContentProvider<BunnyAuthConfig, BunnyCMSConfi
         file,
         fullPath,
         cmsConfig.cdnConfig?.zoneName as string,
-        cmsConfig.storageConfig?.mainStorageRegion as string
+        cmsConfig.storageConfig?.mainStorageRegion as string,
+        cmsConfig.cdnConfig?.linkedHostname as string
       );
       if (response.body === "") {
         return new APIResponse(false, 400, "Unable to upload the file");
