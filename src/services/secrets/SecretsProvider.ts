@@ -88,7 +88,7 @@ export class SodiumSecretsProvider implements SecretsProvider {
           data: {
             name: name,
             secret: dbSecret,
-            nonce: dbSecret,
+            nonce: dbNonce,
           },
         });
       }

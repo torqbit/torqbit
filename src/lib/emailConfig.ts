@@ -1,3 +1,5 @@
+import { IEmailCredentials } from "@/types/cms/email";
+
 export interface IWelcomeEmailConfig {
   name: string;
   url: string;
@@ -88,6 +90,11 @@ export interface IFeedBackConfig {
   feedback: string;
   name: string;
   email: string;
+}
+export interface ITestEmailConfig {
+  name: string;
+  email: string;
+  credendials: IEmailCredentials;
 }
 export interface IEmailResponse {
   success: boolean;

@@ -1,4 +1,5 @@
 export type IEmailEventType =
+  | "TEST_EMAIL_CREDENIDTIALS"
   | "NEW_USER"
   | "COURSE_ENROLMENT"
   | "COURSE_COMPLETION"

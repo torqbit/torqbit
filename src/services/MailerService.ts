@@ -15,6 +15,7 @@ import {
   IEventEmailConfig,
   IFeedBackConfig,
   INewLessonConfig,
+  ITestEmailConfig,
   IWelcomeEmailConfig,
 } from "@/lib/emailConfig";
 import AssignmentCompletionEmail from "@/components/Email/AssignmentCompletionEmail";
@@ -24,12 +25,17 @@ import AssignmentSubmissionEmail from "@/components/Email/AssignmentSubmissionEm
 import EventCompletionEmail from "@/components/Email/EventCompletionEmail";
 import EventAccessEmail from "@/components/Email/EventAccessEmail";
 import EventAccessDeniedEmail from "@/components/Email/EventAccessDeniedEmail";
-export const getEmailErrorMessage = (response: string) => {
+import TestEmailCredentialsEmail from "@/components/Email/TestEmailCredentialsEmail";
+export const getEmailErrorMessage = (response: string, message?: string) => {
   let errResponse;
   if (response === "CONN") {
     errResponse = "Connection failed";
   } else if (response === "AUTH PLAIN") {
-    errResponse = "authentication failed";
+    errResponse = " Authentication failed";
+  } else if (response === "ECONNECTION") {
+    errResponse = "Connection failed";
+  } else if (response === "DATA") {
+    errResponse = message;
   } else {
     errResponse = response;
   }
@@ -72,6 +78,8 @@ class MailerService {
         return this.sendEventAccessMail(config as IEventAccessMailConfig);
       case "DENIED_ACCESS":
         return this.sendEventAccessDeniedMail(config as IEventAccessDeniedMailConfig);
+      case "TEST_EMAIL_CREDENIDTIALS":
+        return this.sendEmailCredentialsTestMail(config as ITestEmailConfig);
 
       default:
         throw new Error("something went wrong");
@@ -301,6 +309,37 @@ class MailerService {
       return { success: true, message: "Email sent successfully" };
     } catch (error: any) {
       return { success: false, error: `Error sending email:${getEmailErrorMessage(error.command)}` };
+    }
+  }
+
+  async sendEmailCredentialsTestMail(config: ITestEmailConfig) {
+    const testTransporter = nodemailer.createTransport({
+      port: 587,
+      host: config.credendials.smtpHost,
+      secure: false,
+      auth: {
+        user: config.credendials.smtpUser,
+        pass: config.credendials.smtpPassword,
+      },
+      from: `${config.credendials.smtpFromEmail}`,
+    });
+    try {
+      const htmlString = render(
+        TestEmailCredentialsEmail({
+          configData: config,
+        })
+      );
+
+      const sendMail = await testTransporter.sendMail({
+        to: config.email,
+        from: `${process.env.NEXT_PUBLIC_PLATFORM_NAME} <${config.credendials.smtpFromEmail}>`,
+        subject: `Test Email Credentials `,
+        html: htmlString,
+      });
+      return { success: true, message: "Email sent successfully" };
+    } catch (error: any) {
+      console.log("error ", error);
+      return { success: false, error: `Error sending email:${getEmailErrorMessage(error.command, error.response)}` };
     }
   }
 }
