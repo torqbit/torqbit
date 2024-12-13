@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const body = req.body;
 
-    const { lessonId, title, content, state, assignmentFiles, estimatedDuration } = body;
+    const { lessonId, title, content, state, assignmentFiles, estimatedDuration, submissionType } = body;
 
     let assignmentData: any = {};
 
@@ -24,6 +24,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (lessonId) assignmentData.lessonId = lessonId;
 
     if (assignmentFiles) assignmentData.assignmentFiles = assignmentFiles;
+    if (submissionType) assignmentData.submissionType = submissionType;
     if (estimatedDuration) assignmentData.estimatedDuration = estimatedDuration;
 
     if (title) {

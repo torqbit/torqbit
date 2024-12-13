@@ -4,6 +4,7 @@ export default {
   platformLogo: `/public/icon/torqbit.png`,
   courseTags: ["HTML", "CSS", "JS", "ReactJS"],
   assignmentLang: ["html", "css", "javascript", "java", "python", "go", "nodejs", "reactjs"],
+  assignmentTypes: ["CODE_EDITOR", "TEXT_EDITOR"],
   assignmentFiles: ["index.html", "global.css", "index.js", , "index.ts", "index.tsx", "index.jsx"],
   courseType: ["FREE", "PAID"],
   defaultPageSize: 5,

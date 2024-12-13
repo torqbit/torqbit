@@ -389,12 +389,12 @@ enum ConfigurationState {
 }
 
 model ServiceProvider {
-  id             Int                      @default(autoincrement()) @db.Int()
-  service_type   String                   @unique @db.VarChar(20)
-  provider_name  String                   @db.Text()
+  id             Int                @default(autoincrement()) @db.Int()
+  service_type   String             @unique @db.VarChar(20)
+  provider_name  String             @db.Text()
   providerDetail Json?
-  state          ConfigurationState       @default(INITIATED)
-  dt_added       DateTime @default(now())
+  state          ConfigurationState @default(INITIATED)
+  dt_added       DateTime           @default(now())
 
   @@unique([id])
 }
@@ -531,6 +531,11 @@ model Invoice {
   @@index([orderId])
 }
 
+enum SubmissionType {
+  CODE_EDITOR
+  TEXT_EDITOR
+}
+
 model Assignment {
   id                Int                    @id @unique @default(autoincrement())
   createdAt         DateTime               @default(now())
@@ -538,6 +543,7 @@ model Assignment {
   lessonId          Int
   content           Json?
   assignmentFiles   Json?
+  submissionType    SubmissionType?
   estimatedDuration Int?
   lesson            Resource               @relation(fields: [lessonId], references: [resourceId], onDelete: Cascade)
   submission        AssignmentSubmission[]
@@ -655,7 +661,7 @@ model EventRegistration {
 }
 
 model SecretStore {
-  name String @id
+  name   String @id
   secret String @db.Text
-  nonce String 
+  nonce  String
 }

@@ -5,16 +5,15 @@ import { FC, useEffect, useState } from "react";
 import style from "@/styles/LearnLecture.module.scss";
 import { useMediaQuery } from "react-responsive";
 import { useAppContext } from "../../ContextApi/AppContext";
-import { Role, submissionStatus } from "@prisma/client";
+import { Role, submissionStatus, SubmissionType } from "@prisma/client";
 import AssignmentService, { IAllSubmmissionsDetail } from "@/services/AssignmentService";
 import { arrangeAssignmentFiles, compareByHash, getCodeDefaultValue, getExtension, mapToArray } from "@/lib/utils";
 import { useRouter } from "next/router";
-import PreviewAssignment from "./PreviewAssignment";
-import EvaluatinoList from "./EvaluationList";
-import AssignmentCodeEditor from "./AssignmentCodeEditor";
 import SpinLoader from "@/components/SpinLoader/SpinLoader";
 import SvgIcons from "@/components/SvgIcons";
 import { CaretDownOutlined } from "@ant-design/icons";
+import CodeEditorSubmission from "./CodeEditorSubmission";
+import TextEditorSubmission from "./TextEditorSubmission";
 
 const AssignmentSubmissionTab: FC<{
   userRole: Role;
@@ -24,6 +23,7 @@ const AssignmentSubmissionTab: FC<{
   subStatus: submissionStatus;
   setScore: (value: number) => void;
   assignmentFiles: string[];
+  submissionType: SubmissionType;
   getLatestStatus: (assignmentId: number, lessonId: number, courseId: number) => void;
   setSubmitLimit: (value: number) => void;
   submitLimit: number;
@@ -36,6 +36,7 @@ const AssignmentSubmissionTab: FC<{
   setSubStatus,
   setScore,
   assignmentFiles,
+  submissionType,
   getLatestStatus,
   setSubmitLimit,
   submitLimit,
@@ -71,28 +72,32 @@ const AssignmentSubmissionTab: FC<{
       return newMap;
     });
   };
-  const createAssignmentMap = (assignmentFiles: string[]) => {
-    let path = "";
-    assignmentFiles.forEach((f) => {
-      if (f.includes(".css")) {
-        path = f;
-      }
-    });
+  const createAssignmentMap = () => {
+    if (assignmentFiles.length > 0 && submissionType === SubmissionType.TEXT_EDITOR) {
+      let path = "";
+      assignmentFiles.forEach((f) => {
+        if (f.includes(".css")) {
+          path = f;
+        }
+      });
 
-    arrangeAssignmentFiles(assignmentFiles).map((assign, i) => {
-      fileMap.set(assign, getCodeDefaultValue(getExtension(assign), path) as string);
-    });
-    setTimeout(() => {}, 3000);
+      arrangeAssignmentFiles(assignmentFiles).map((assign, i) => {
+        fileMap.set(assign, getCodeDefaultValue(getExtension(assign), path) as string);
+      });
+      setTimeout(() => {}, 3000);
+    } else if (submissionType === SubmissionType.CODE_EDITOR) {
+      fileMap.set("article", "Dummy Text");
+    }
   };
 
-  const saveAssignment = (assignmentId: number, fileMap: Map<string, string>) => {
+  const saveAssignment = (assignmentId: number) => {
     if (compareByHash(mapToArray(fileMap), mapToArray(savedData))) {
       return;
     }
+
     setSaveLoading(true);
     try {
       const content = Object.fromEntries(fileMap.entries());
-
       let submitData = {
         content: JSON.stringify(content),
         lessonId: lessonId,
@@ -143,33 +148,6 @@ const AssignmentSubmissionTab: FC<{
       }
     );
     setPreviewHistory(false);
-  };
-
-  const handleAssignmentFiles = (value: SegmentedValue) => {
-    if (value === "Preview") {
-      const arrayMap = mapToArray(fileMap);
-
-      AssignmentService.previewAssignment(
-        arrayMap,
-        Number(router.query.courseId),
-        lessonId,
-        (result) => {
-          setPreviewUrl(result.preview);
-          setSelectedSegment(value);
-        },
-        (error) => {
-          messageApi.error(error);
-        }
-      );
-    } else if (value === "Evaluations") {
-      getSubmissionHistoryDetail(Number(assignmentId), Number(router.query.lessonId), Number(router.query.courseId));
-      setSelectedSegment(value);
-    } else if (value === "Code") {
-      checkTotalSubmission(Number(assignmentId), Number(router.query.lessonId), Number(router.query.courseId));
-
-      setSelectedSegment(value);
-    }
-    getLatestStatus(Number(assignmentId), lessonId, Number(router.query.courseId));
   };
 
   const submitAssignment = (assignmentId: number) => {
@@ -236,7 +214,7 @@ const AssignmentSubmissionTab: FC<{
             setPreviousData(new Map<string, string>(result.latestSubmissionDetail.previousContent));
           }
         } else {
-          assignmentFiles && createAssignmentMap(assignmentFiles as string[]);
+          createAssignmentMap();
         }
 
         setSubStatus(result.latestSubmissionDetail.status as submissionStatus);
@@ -285,6 +263,33 @@ const AssignmentSubmissionTab: FC<{
     }
   }, [assignmentId]);
 
+  const handleAssignmentFiles = (value: SegmentedValue) => {
+    if (value === "Preview") {
+      const arrayMap = mapToArray(fileMap);
+
+      AssignmentService.previewAssignment(
+        arrayMap,
+        Number(router.query.courseId),
+        lessonId,
+        (result) => {
+          setPreviewUrl(result.preview);
+          setSelectedSegment(value);
+        },
+        (error) => {
+          messageApi.error(error);
+        }
+      );
+    } else if (value === "Evaluations") {
+      getSubmissionHistoryDetail(Number(assignmentId), Number(router.query.lessonId), Number(router.query.courseId));
+      setSelectedSegment(value);
+    } else if (value === "Code") {
+      checkTotalSubmission(Number(assignmentId), Number(router.query.lessonId), Number(router.query.courseId));
+
+      setSelectedSegment(value);
+    }
+    getLatestStatus(Number(assignmentId), lessonId, Number(router.query.courseId));
+  };
+  console.log(fileMap);
   return (
     <>
       {contextHolder}
@@ -307,89 +312,99 @@ const AssignmentSubmissionTab: FC<{
               className={globalState.collapsed ? style.code__collapsed__editor__wrapper : style.code__editor__wrapper}
             >
               <Flex align="center" justify="space-between">
-                <Segmented
-                  value={selectedsegment}
-                  className={`${style.Segmented_wrapper} segment__wrapper`}
-                  options={["Code", "Preview", "Evaluations"]}
-                  onChange={(value) => {
-                    handleAssignmentFiles(value);
-                  }}
-                />
-                {userRole === Role.STUDENT && selectedsegment === "Code" && (
-                  <Flex align="center" gap={10}>
-                    <Flex align="cneter" gap={0}>
-                      <Button
-                        style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: "none" }}
-                        loading={saveLoading}
-                        disabled={previewHistory || compareByHash(mapToArray(fileMap), mapToArray(savedData))}
-                        onClick={() => {
-                          saveAssignment(Number(assignmentId), fileMap);
-                        }}
-                      >
-                        Save
-                      </Button>
-                      <Select
-                        suffixIcon={<CaretDownOutlined className={style.selectIcon} />}
-                        className={"select_history"}
-                        style={{ width: 145 }}
-                        allowClear={{ clearIcon: <i className={style.selectClearIcon}>{SvgIcons.cross}</i> }}
-                        placeholder="View Attempts"
-                        onClear={() => {
-                          subStatus !== submissionStatus.PENDING && setSubmitDisable(false);
-                          checkTotalSubmission(
-                            Number(assignmentId),
-                            Number(router.query.lessonId),
-                            Number(router.query.courseId)
-                          );
-                        }}
-                        onChange={showHistory}
-                      >
-                        {allSubmmissionsDetail
-                          .sort((a, b) => a.submissionId - b.submissionId)
-                          .map((sub, i) => {
-                            return (
-                              <Select.Option key={i} value={sub.submissionId}>
-                                {getSubmissionHistoryLabel(i)}
-                              </Select.Option>
-                            );
-                          })}
-                      </Select>
-                    </Flex>
-
-                    {submitLimit < appConstant.assignmentSubmissionLimit && (
-                      <Button
-                        loading={submitLoading}
-                        disabled={
-                          submitLimit === appConstant.assignmentSubmissionLimit ||
-                          (submitDisable && submitLimit > 0) ||
-                          subStatus === submissionStatus.PENDING
-                        }
-                        onClick={() => submitAssignment(Number(assignmentId))}
-                        type="primary"
-                      >
-                        Submit
-                      </Button>
-                    )}
-                  </Flex>
-                )}
-              </Flex>
-              <>
-                {selectedsegment === "Code" && assignmentFiles && (
-                  <AssignmentCodeEditor
-                    fileMap={fileMap}
-                    saveAssignment={saveAssignment}
-                    assignmentFiles={assignmentFiles}
-                    assignmentId={assignmentId}
-                    updateAssignmentMap={updateAssignmentMap}
-                    readOnly={previewHistory}
+                {submissionType === SubmissionType.CODE_EDITOR && (
+                  <Segmented
+                    value={selectedsegment}
+                    className={`${style.Segmented_wrapper} segment__wrapper`}
+                    options={["Code", "Preview", "Evaluations"]}
+                    onChange={(value) => {
+                      handleAssignmentFiles(value);
+                    }}
                   />
                 )}
-                {selectedsegment === "Preview" && <PreviewAssignment previewUrl={previewUrl} />}
+                {/* userRole === Role.STUDENT && selectedsegment === "Code"  */}
+                {/* {userRole === Role.STUDENT &&
+                  (selectedsegment === "Code" || submissionType === SubmissionType.TEXT_EDITOR) && ( */}
+                {userRole === Role.STUDENT &&
+                  (selectedsegment === "Code" || submissionType === SubmissionType.TEXT_EDITOR) && (
+                    <Flex align="center" gap={10}>
+                      <Flex align="cneter" gap={0}>
+                        <Button
+                          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: "none" }}
+                          loading={saveLoading}
+                          disabled={previewHistory || compareByHash(mapToArray(fileMap), mapToArray(savedData))}
+                          onClick={() => {
+                            saveAssignment(Number(assignmentId));
+                          }}
+                        >
+                          Save
+                        </Button>
+                        <Select
+                          suffixIcon={<CaretDownOutlined className={style.selectIcon} />}
+                          className={"select_history"}
+                          style={{ width: 145 }}
+                          allowClear={{ clearIcon: <i className={style.selectClearIcon}>{SvgIcons.cross}</i> }}
+                          placeholder="View Attempts"
+                          onClear={() => {
+                            subStatus !== submissionStatus.PENDING && setSubmitDisable(false);
+                            checkTotalSubmission(
+                              Number(assignmentId),
+                              Number(router.query.lessonId),
+                              Number(router.query.courseId)
+                            );
+                          }}
+                          onChange={showHistory}
+                        >
+                          {allSubmmissionsDetail
+                            .sort((a, b) => a.submissionId - b.submissionId)
+                            .map((sub, i) => {
+                              return (
+                                <Select.Option key={i} value={sub.submissionId}>
+                                  {getSubmissionHistoryLabel(i)}
+                                </Select.Option>
+                              );
+                            })}
+                        </Select>
+                      </Flex>
 
-                {selectedsegment === "Evaluations" && (
-                  <EvaluatinoList loading={evaluationLoading} allSubmission={allSubmmissionsDetail} />
-                )}
-              </>
+                      {submitLimit < appConstant.assignmentSubmissionLimit && (
+                        <Button
+                          loading={submitLoading}
+                          disabled={
+                            submitLimit === appConstant.assignmentSubmissionLimit ||
+                            (submitDisable && submitLimit > 0) ||
+                            subStatus === submissionStatus.PENDING
+                          }
+                          onClick={() => submitAssignment(Number(assignmentId))}
+                          type="primary"
+                        >
+                          Submit
+                        </Button>
+                      )}
+                    </Flex>
+                  )}
+              </Flex>
+              {submissionType === SubmissionType.CODE_EDITOR && (
+                <CodeEditorSubmission
+                  previewUrl={previewUrl}
+                  selectedsegment={selectedsegment}
+                  previewHistory={previewHistory}
+                  evaluationLoading={evaluationLoading}
+                  allSubmmissionsDetail={allSubmmissionsDetail}
+                  fileMap={fileMap}
+                  assignmentFiles={assignmentFiles}
+                  assignmentId={assignmentId}
+                  lessonId={lessonId}
+                  saveAssignment={saveAssignment}
+                  updateAssignmentMap={updateAssignmentMap}
+                />
+              )}
+              {submissionType === SubmissionType.TEXT_EDITOR && (
+                <TextEditorSubmission
+                  textEditorValue={fileMap.get("article") as string}
+                  setDefaultValue={(value) => updateAssignmentMap("article", value)}
+                />
+              )}
             </Space>
           )}
         </>

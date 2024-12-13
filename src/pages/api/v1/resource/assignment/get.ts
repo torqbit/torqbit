@@ -4,6 +4,8 @@ import { withMethods } from "@/lib/api-middlewares/with-method";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { IAssignmentDetail } from "@/types/courses/Course";
+import { SubmissionType } from "@prisma/client";
+import { IProgrammingSubmissionContent, ITextSubmissionContent, IUrlSubmission } from "@/types/courses/assignment";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -17,6 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       select: {
         content: true,
         assignmentFiles: true,
+        submissionType: true,
         estimatedDuration: true,
         id: true,
         lesson: {
@@ -32,6 +35,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         assignmentId: assignmentDetail.id,
         content: assignmentDetail.content as string,
         assignmentFiles: assignmentDetail.assignmentFiles as string[],
+        submissionType: assignmentDetail.submissionType as SubmissionType,
         name: assignmentDetail.lesson.name,
         estimatedDuration: Number(assignmentDetail.estimatedDuration),
       };

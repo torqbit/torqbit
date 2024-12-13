@@ -7,7 +7,7 @@ import AssignmentService from "@/services/AssignmentService";
 import { useRouter } from "next/router";
 import appConstant from "@/services/appConstant";
 import SvgIcons from "../SvgIcons";
-import { Role, submissionStatus } from "@prisma/client";
+import { Role, submissionStatus, SubmissionType } from "@prisma/client";
 import { useMediaQuery } from "react-responsive";
 import AssignmentSubmissionTab from "./Submissions/AssignmentSubmissionTab";
 import AssignmentContentTab from "./Content/AssignmentContentTab";
@@ -22,6 +22,7 @@ const ViewAssignment: FC<{
   userRole: Role;
   ResponsiveLessonItemsList: JSX.Element;
   assignmentFiles: string[];
+  submissionType: SubmissionType;
   updateAssignmentWatchedStatus: (chapterSeqId: number, lessonId: number) => void;
   chapterSeqId: number;
 }> = ({
@@ -31,6 +32,7 @@ const ViewAssignment: FC<{
   userRole,
   ResponsiveLessonItemsList,
   assignmentFiles,
+  submissionType,
   updateAssignmentWatchedStatus,
   chapterSeqId,
 }) => {
@@ -94,6 +96,7 @@ const ViewAssignment: FC<{
           subStatus={subStatus as submissionStatus}
           setScore={setScore}
           assignmentFiles={assignmentFiles}
+          submissionType={submissionType}
           getLatestStatus={getLatestStatus}
           setSubmitLimit={setSubmitLimit}
           submitLimit={submitLimit}

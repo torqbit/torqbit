@@ -4,7 +4,7 @@ import appConstant from "@/services/appConstant";
 import TextEditor from "@/components/Editor/Quilljs/Editor";
 import { FC, useEffect, useState } from "react";
 import AssignmentService from "@/services/AssignmentService";
-import { ResourceContentType } from "@prisma/client";
+import { ResourceContentType, SubmissionType } from "@prisma/client";
 import { CloseOutlined } from "@ant-design/icons";
 
 const AddAssignment: FC<{
@@ -28,11 +28,13 @@ const AddAssignment: FC<{
 }) => {
   const [assignmentForm] = Form.useForm();
   const [editorValue, setDefaultValue] = useState<string>();
+  const [assType, setAssType] = useState<SubmissionType>();
   const handleAssignment = () => {
     AssignmentService.createAssignment(
       {
         lessonId: Number(currResId),
         assignmentFiles: assignmentForm.getFieldsValue().assignmentFiles,
+        submissionType: assignmentForm.getFieldsValue().submissionType,
         title: assignmentForm.getFieldsValue().title,
         content: editorValue,
         isEdit,
@@ -54,6 +56,8 @@ const AddAssignment: FC<{
         currResId,
         (result) => {
           assignmentForm.setFieldValue("title", result.assignmentDetail.name);
+          assignmentForm.setFieldValue("submissionType", result.assignmentDetail.submissionType);
+          setAssType(result.assignmentDetail.submissionType);
           assignmentForm.setFieldValue("assignmentFiles", result.assignmentDetail.assignmentFiles);
           assignmentForm.setFieldValue("estimatedDuration", result.assignmentDetail.estimatedDuration);
 
@@ -120,20 +124,38 @@ const AddAssignment: FC<{
           <Input placeholder="Add a title" />
         </Form.Item>
         <Form.Item
-          name="assignmentFiles"
-          label="Assignment Files"
-          rules={[{ required: true, message: "Please Select files" }]}
+          name="submissionType"
+          label="Submission Type"
+          rules={[{ required: true, message: "Please Select Type" }]}
         >
-          <Select mode="tags" placeholder="Add assignment files">
-            {appConstant.assignmentFiles.map((lang, i) => {
+          <Select placeholder="Select assignment type" onSelect={setAssType}>
+            {appConstant.assignmentTypes.map((type, i) => {
               return (
-                <Select.Option key={i} value={`${lang}`}>
-                  {lang}
+                <Select.Option key={i} value={`${type}`}>
+                  {type?.replace("_", " ")}
                 </Select.Option>
               );
             })}
           </Select>
         </Form.Item>
+
+        {assType === appConstant.assignmentTypes[0] && (
+          <Form.Item
+            name="assignmentFiles"
+            label="Assignment Files"
+            rules={[{ required: true, message: "Please Select files" }]}
+          >
+            <Select mode="tags" placeholder="Add assignment files">
+              {appConstant.assignmentFiles.map((lang, i) => {
+                return (
+                  <Select.Option key={i} value={`${lang}`}>
+                    {lang}
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
+        )}
 
         <Form.Item
           name="estimatedDuration"

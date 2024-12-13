@@ -8,10 +8,12 @@ import {
   ResourceContentType,
   Role,
   StateType,
+  SubmissionType,
   Video,
   VideoState,
   courseDifficultyType,
 } from "@prisma/client";
+import { IProgrammingSubmissionContent, ITextSubmissionContent, IUrlSubmission } from "./assignment";
 
 export interface IHeroCoursePreview {
   courseName: string;
@@ -31,10 +33,12 @@ export interface ChapterDetail {
   name: string;
   resource: IResourceDetail[];
 }
+
 export interface IAssignmentDetail {
   assignmentId: number;
-  content: string;
+  content: ITextSubmissionContent | IProgrammingSubmissionContent | IUrlSubmission | string;
   assignmentFiles: string[];
+  submissionType: SubmissionType;
   name?: string;
   estimatedDuration: number;
 }

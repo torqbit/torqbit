@@ -36,7 +36,7 @@ import { generateDayAndYear, getCookieName, getExtension } from "@/lib/utils";
 import { getToken } from "next-auth/jwt";
 import SpinLoader from "@/components/SpinLoader/SpinLoader";
 import { useMediaQuery } from "react-responsive";
-import { $Enums, ResourceContentType, Role } from "@prisma/client";
+import { $Enums, ResourceContentType, Role, SubmissionType } from "@prisma/client";
 import ViewAssignment from "@/components/Assignment/ViewAssignment";
 import prisma from "@/lib/prisma";
 import AssignmentService from "@/services/AssignmentService";
@@ -571,6 +571,7 @@ const LessonPage: NextPage<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) =>
                           userRole={courseDetail?.userRole as Role}
                           ResponsiveLessonItemsList={ResponsiveLessonItemsList}
                           assignmentFiles={assignmentDetail?.assignmentFiles as string[]}
+                          submissionType={assignmentDetail?.submissionType as SubmissionType}
                           updateAssignmentWatchedStatus={updateAssignmentWatchedStatus}
                           chapterSeqId={Number(currentLesson.chapterSeq)}
                         />
