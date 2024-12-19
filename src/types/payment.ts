@@ -41,7 +41,11 @@ export interface PaymentServiceProvider {
     userConfig: UserConfig,
     orderId: string
   ): Promise<PaymentApiResponse>;
-  updateOrder(orderId: string, gatewayOrderId: string): Promise<APIResponse<paymentStatus>>;
+  updateOrder(
+    orderId: string,
+    gatewayOrderId: string,
+    currentStatus?: paymentStatus
+  ): Promise<APIResponse<paymentStatus>>;
 }
 
 export interface CashFreePaymentData {
@@ -50,6 +54,7 @@ export interface CashFreePaymentData {
   gatewayOrderId?: string;
   paymentId?: string;
   currency?: string;
+  amount?: number;
   message?: string;
   bankReference?: string;
   paymentTime?: string;

@@ -145,20 +145,21 @@ export class PaymentManagemetService {
   };
 
   updateOrder = async (orderId: string): Promise<APIResponse<paymentStatus>> => {
-    const OrderDetail = await prisma.order.findUnique({
+    const orderDetail = await prisma.order.findUnique({
       where: {
         id: orderId,
       },
       select: {
         paymentGateway: true,
         orderId: true,
+        latestStatus: true,
       },
     });
-    if (OrderDetail?.orderId) {
-      switch (OrderDetail?.paymentGateway) {
+    if (orderDetail?.orderId) {
+      switch (orderDetail?.paymentGateway) {
         case $Enums.gatewayProvider.CASHFREE:
-          const cf = await this.getPaymentProvider({ name: OrderDetail.paymentGateway });
-          const response = await cf.updateOrder(orderId, OrderDetail.orderId);
+          const cf = await this.getPaymentProvider({ name: orderDetail.paymentGateway });
+          const response = await cf.updateOrder(orderId, orderDetail.orderId, orderDetail.latestStatus || undefined);
 
           return new APIResponse(response.success, response.status, response.message, response.body);
 
@@ -265,12 +266,12 @@ export class PaymentManagemetService {
   getOrderHistoryByUser = async (studentId: string): Promise<OrderHistory[]> => {
     const orders = await prisma.$queryRaw<
       any[]
-    >`SELECT o.latestStatus as status,o.amount,o.updatedAt as paymentDate,o.courseId,o.orderId,o.currency,co.name as courseName,invoice.id as invoiceId FROM \`Order\` AS o  
-    INNER JOIN Course as co ON co.courseId = o.courseId
+    >`SELECT o.latestStatus as status,o.amount,o.updatedAt as paymentDate,o.productId,o.orderId,o.currency,co.name as courseName,invoice.id as invoiceId FROM \`Order\` AS o  
+    INNER JOIN Course as co ON co.courseId = o.productId
        LEFT OUTER JOIN Invoice as invoice ON invoice.studentId = ${studentId}  AND invoice.orderId = o.orderId
      WHERE o.studentId = ${studentId} AND o.updatedAt =  (SELECT MAX(updatedAt)
     FROM \`Order\` AS b 
-    WHERE o.courseId = b.courseId AND o.studentId = ${studentId}) ORDER BY o.updatedAt ASC`;
+    WHERE o.productId = b.productId AND o.studentId = ${studentId}) ORDER BY o.updatedAt ASC`;
 
     return orders;
   };

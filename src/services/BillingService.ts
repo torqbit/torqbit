@@ -228,7 +228,7 @@ export class BillingService {
           });
         }
 
-        return response;
+        resolve(response);
       }
     });
   }

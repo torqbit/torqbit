@@ -21,12 +21,13 @@ import { useRouter } from "next/router";
 
 const ProfileSetting: FC<{
   user: Session;
+  active: boolean;
   onUpdateProfile: (info: { name: string; phone: string; image: string }) => void;
   setUserProfile: (profile: string) => void;
   setFile: (file: File) => void;
   userProfile: string;
   updateLoading: boolean;
-}> = ({ user, onUpdateProfile, userProfile, setUserProfile, setFile, updateLoading }) => {
+}> = ({ user, onUpdateProfile, active, userProfile, setUserProfile, setFile, updateLoading }) => {
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [userProfileUploading, setuserProfileUploading] = useState<boolean>(false);
   const router = useRouter();
@@ -41,11 +42,12 @@ const ProfileSetting: FC<{
   };
   useEffect(() => {
     setPageLoading(true);
-    if (user && (!router.query.tab || router.query.tab === "profile")) {
+    if (user && active) {
       setUserProfile(String(user.user?.image));
       setPageLoading(false);
     }
-  }, [router.query.tab]);
+    setPageLoading(false);
+  }, [active]);
 
   return (
     <>
@@ -143,10 +145,12 @@ const ProfileSetting: FC<{
 
 const Setting: NextPage<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
   const { data: user, update } = useSession();
+  const router = useRouter();
+
   const [messageApi, contextMessageHolder] = message.useMessage();
   const [userProfile, setUserProfile] = useState<string>();
-  const [activeKey, setActiveKey] = useState<string>("profile");
-  const router = useRouter();
+  let active = router.query.tab && typeof router.query.tab === "string" ? router.query.tab : "profile";
+  const [activeKey, setActiveKey] = useState<string>(active);
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
 
   const [file, setFile] = useState<File>();
@@ -198,6 +202,7 @@ const Setting: NextPage<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
       children: user && (
         <ProfileSetting
           user={user}
+          active={activeKey !== "payment"}
           onUpdateProfile={onUpdateProfile}
           userProfile={String(userProfile)}
           setUserProfile={setUserProfile}
@@ -209,7 +214,7 @@ const Setting: NextPage<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
     {
       key: "payment",
       label: "Payment",
-      children: user && <PaymentHistory />,
+      children: user && <PaymentHistory active={activeKey === "payment"} />,
     },
   ];
 
@@ -219,7 +224,7 @@ const Setting: NextPage<{ siteConfig: PageSiteConfig }> = ({ siteConfig }) => {
 
       <section className={styleLayout.setting_content}>
         <h3>Setting</h3>
-        <Tabs defaultActiveKey="1" className="content_tab" items={items} onChange={onChange} />
+        <Tabs defaultActiveKey={activeKey} className="content_tab" items={items} onChange={onChange} />
       </section>
     </AppLayout>
   );

@@ -3,14 +3,12 @@ import { generateDayAndYear } from "@/lib/utils";
 import { getFetch } from "@/services/request";
 import { OrderHistory } from "@/types/payment";
 import { $Enums } from "@prisma/client";
-import { Flex, message, Table, Tag } from "antd";
+import { Flex, message, Table } from "antd";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 
-const PaymentHistory: FC = () => {
+const PaymentHistory: FC<{ active: boolean }> = ({ active }) => {
   const [messageApi, contextMessageHolder] = message.useMessage();
-  const router = useRouter();
   const [paymentData, setPaymentData] = useState<{
     loading: boolean;
     data?: OrderHistory[];
@@ -102,8 +100,8 @@ const PaymentHistory: FC = () => {
   };
 
   useEffect(() => {
-    router.query.tab === "payment " && getPaymentData();
-  }, [router.query.tab]);
+    active && getPaymentData();
+  }, [active]);
 
   return (
     <>
