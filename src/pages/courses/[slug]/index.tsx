@@ -45,6 +45,8 @@ const LearnCoursesPage: NextPage<{
   const [paymentDisable, setPaymentDisable] = useState<boolean>(false);
   const [paymentStatusLoading, setPaymentStatusLaoding] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [orderId, setOrderId] = useState<string>("");
+
   const [modal, contextModalHolder] = Modal.useModal();
 
   const [enableModal, setModal] = useState<{ active: boolean; message: string }>({ active: false, message: "" });
@@ -108,6 +110,7 @@ const LearnCoursesPage: NextPage<{
       const res = await postFetch(
         {
           courseId: Number(courseId),
+          orderId,
         },
         "/api/v1/course/enroll"
       );
@@ -169,6 +172,7 @@ const LearnCoursesPage: NextPage<{
 
     if (result.success) {
       setPaymentDisable(result.paymentDisable);
+      setOrderId(result.orderId);
       setPaymentStatus(result.status);
       setPaymentStatusLaoding(false);
     } else {

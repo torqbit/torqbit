@@ -49,7 +49,7 @@ model User {
   CourseProgress       CourseProgress[]
   conversation         Conversation[]
   blogs                Blog[]
-  payment              Order[]
+  orders               Order[]
   invoices             Invoice[]
   submissions          AssignmentSubmission[]
   evaluations          AssignmentEvaluation[]
@@ -162,7 +162,7 @@ model Course {
   totalResources   Int                   @default(0)
   state            StateType             @default(DRAFT)
   chapters         Chapter[]
-  product          Product              @relation(name: "course_product", fields: [courseId], references: [productId])
+  product          Product               @relation(name: "course_product", fields: [courseId], references: [productId])
 
   courseProgress CourseProgress[]
 
@@ -466,10 +466,10 @@ enum ProductType {
 }
 
 model Product {
-  productId          Int                 @id @default(autoincrement())
-  ptype              ProductType
-  orders             Order[]
-  course             Course? @relation(name: "course_product")
+  productId Int         @id @default(autoincrement())
+  ptype     ProductType
+  orders    Order[]
+  course    Course?     @relation(name: "course_product")
 }
 
 model Order {
@@ -478,7 +478,7 @@ model Order {
   orderStatus      orderStatus?
   paymentStatus    paymentStatus?
   studentId        String
-  productId        Int                 
+  productId        Int
   currency         String?
   paymentMode      paymentMode         @default(ONLINE)
   amount           Int?
@@ -494,6 +494,7 @@ model Order {
   product          Product             @relation(fields: [productId], references: [productId], onDelete: Cascade)
   user             User                @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  @@unique([studentId, productId])
   @@index([studentId, gatewayOrderId])
   @@index([productId])
 }

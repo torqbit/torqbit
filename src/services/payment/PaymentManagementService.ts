@@ -175,10 +175,7 @@ export class PaymentManagemetService {
 
       const isRigistered = await prisma.courseRegistration.findUnique({
         where: {
-          studentId_courseId: {
-            studentId: customerDetail.id,
-            courseId: productId,
-          },
+          orderId,
         },
         select: {
           registrationId: true,
@@ -190,7 +187,6 @@ export class PaymentManagemetService {
         (await prisma.courseRegistration.create({
           data: {
             studentId: customerDetail.id,
-            courseId: productId,
             expireIn: courseExpiryDate,
             courseState: $Enums.CourseState.ENROLLED,
             courseType: $Enums.CourseType.PAID,
@@ -286,6 +282,7 @@ export class PaymentManagemetService {
   ): Promise<{
     status: string | null;
     paymentDisable: boolean;
+    orderId: string;
     alertType: string;
     alertMessage: string;
     alertDescription: string;
@@ -293,17 +290,15 @@ export class PaymentManagemetService {
     switch (gatewayProvider) {
       case $Enums.gatewayProvider.CASHFREE:
         let currentTime = new Date().getTime();
-        const getDetail = await prisma.order.findFirst({
+        const getDetail = await prisma.order.findUnique({
           where: {
             gatewayOrderId: orderId,
           },
           select: {
+            id: true,
             createdAt: true,
             updatedAt: true,
             paymentStatus: true,
-          },
-          orderBy: {
-            createdAt: "desc",
           },
         });
         if (getDetail) {
@@ -312,6 +307,7 @@ export class PaymentManagemetService {
             return {
               status: getDetail.paymentStatus,
               paymentDisable: false,
+              orderId: getDetail.id,
               alertType: "error",
               alertMessage: "Payment Failed",
               alertDescription: "Your payment has failed. Please contact support if you have any questions",
@@ -320,6 +316,8 @@ export class PaymentManagemetService {
             return {
               status: getDetail.paymentStatus,
               paymentDisable: false,
+              orderId: getDetail.id,
+
               alertType: "warning",
               alertMessage: "Payment Dropped",
               alertDescription: "Your payment has been dropped. Please contact support if you have any questions",
@@ -328,6 +326,8 @@ export class PaymentManagemetService {
             return {
               status: getDetail.paymentStatus as string,
               paymentDisable: false,
+              orderId: getDetail.id,
+
               alertType: "success",
               alertMessage: "Payment Successful",
               alertDescription: "Congratulations you have successfully purchased this course",
@@ -339,6 +339,8 @@ export class PaymentManagemetService {
                 status: getDetail.paymentStatus,
                 paymentDisable: remainingTime > 0 ? true : false,
                 alertType: "warning",
+                orderId: getDetail.id,
+
                 alertMessage: "Payment Pending",
                 alertDescription: "Your payment is pending. Please contact support if you have any questions",
               };
@@ -346,6 +348,8 @@ export class PaymentManagemetService {
               return {
                 status: getDetail.paymentStatus,
                 paymentDisable: false,
+                orderId: getDetail.id,
+
                 alertType: "warning",
                 alertMessage: "Payment Pending",
                 alertDescription: "Your payment is pending. Please contact support if you have any questions",

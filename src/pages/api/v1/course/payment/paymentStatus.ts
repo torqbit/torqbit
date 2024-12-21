@@ -20,14 +20,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const { courseId } = req.query;
 
-    const latestOrder = await prisma.order.findFirst({
+    const latestOrder = await prisma.order.findUnique({
       where: {
-        productId: Number(courseId),
-        studentId: String(token?.id),
+        studentId_productId: {
+          productId: Number(courseId),
+          studentId: String(token?.id),
+        },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+
       select: {
         orderStatus: true,
         paymentGateway: true,
@@ -43,6 +43,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             success: true,
             status: latestOrder.orderStatus,
             gatewayStatus: result.status,
+            orderId: result.orderId,
             paymentDisable: result.paymentDisable,
             alertType: result.alertType,
             alertMessage: result.alertMessage,
