@@ -39,7 +39,7 @@ import { useMediaQuery } from "react-responsive";
 import { $Enums, ResourceContentType, Role } from "@prisma/client";
 import ViewAssignment from "@/components/Assignment/ViewAssignment";
 import prisma from "@/lib/prisma";
-import AssignmentService from "@/services/AssignmentService";
+import AssignmentService from "@/services/course/AssignmentService";
 import { useAppContext } from "@/components/ContextApi/AppContext";
 import LessonListSideBar from "@/components/Lessons/LessonListSideBar";
 import AppLayout from "@/components/Layouts/AppLayout";
@@ -73,11 +73,10 @@ const LessonItem: FC<{
             padding: resourceId > 0 ? "5px 0px" : 0,
             paddingLeft: resourceId > 0 ? "20px" : 0,
           }}
-          className={`${selectedLesson && resourceId === selectedLesson.resourceId && styles.selectedLable} ${
-            resourceId > 0 ? styles.lessonLabelContainer : styles.labelContainer
-          }`}
+          className={`${selectedLesson && resourceId === selectedLesson.resourceId && styles.selectedLable} ${resourceId > 0 ? styles.lessonLabelContainer : styles.labelContainer
+            }`}
         >
-          <Flex justify="space-between" align="center" onClick={() => {}}>
+          <Flex justify="space-between" align="center" onClick={() => { }}>
             <div className={styles.title_container}>
               <Flex gap={10} align="center">
                 {completed ? SvgIcons.check : icon}

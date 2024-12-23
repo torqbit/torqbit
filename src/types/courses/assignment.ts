@@ -17,12 +17,12 @@ export interface AssignmentConfig {
   previewFileName: string;
 }
 
-export enum SubmissionType {
+
+export enum AssignmentType {
   PROGRAMMING_LANG = "PROGRAMMING_LANG",
   PROGRAMMING_PROJECT = "PROGRAMMING_PROJECT",
-  TEXT = "TEXT",
-  URL = "URL",
-  FILE = "FILE",
+  MCQ = "MCQ",
+  SUBJECTIVE = "SUBJECTIVE",
 }
 
 export enum ProjectFramework {
@@ -33,25 +33,54 @@ export enum ProjectFramework {
 
 export type DocumentExtension = "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx" | "txt" | "rtf" | "odt";
 
-export interface IAssignmentSubmission {
-  _type: SubmissionType;
+export interface IAssignmentDetails {
+  _type: AssignmentType;
 }
-export interface IProgrammingLangSubmission extends IAssignmentSubmission {
+export interface IProgrammingLangSubmission extends IAssignmentDetails {
+  instructions: string;
   initialCode: string;
   programmingLang: string;
+  grading: {
+    maxScore: number;
+    gradingParameters: Array<{ parameter: string, maxScore: number }>
+  }
 }
 
-export interface IProgrammingProjectSubmission extends IAssignmentSubmission {
+export interface IProgrammingProjectSubmission extends IAssignmentDetails {
   framework: ProjectFramework;
-  versions: Map<string, string>;
+  version: string;
   baseProjectArchiveUrl: string;
+  grading: {
+    maxScore: number;
+    gradingParameters: Array<{ parameter: string, maxScore: number }>
+  }
 }
 
-export interface ITextSubmissionContent extends IAssignmentSubmission {
-  text: string;
+export interface MultipleChoiceQA {
+  title: string;
+  description?: string
+  options: string[];
+  correctOptionIndex: number[];
+  maxScore: number;
+  answerExplaination: string;
 }
-export interface IFileSubmission extends IAssignmentSubmission {
-  fileExts: DocumentExtension;
+export interface MCQAssignment extends IAssignmentDetails {
+  questions: MultipleChoiceQA[];
 }
 
-export interface IUrlSubmission extends IAssignmentSubmission {}
+export interface SubjectiveAssignment extends IAssignmentDetails {
+  title: string;
+  description: string;
+  allowFileUpload: boolean;
+  supportFileTypes: string[];
+}
+
+
+export interface AssignmentCreateRequest {
+  lessonId: number;
+  assingmentType: AssignmentType;
+  estimatedDurationInMins: number;
+  maximumScore: number;
+  passingScore: number
+  details: IAssignmentDetails;
+}

@@ -5,7 +5,7 @@ import AssignmentService, {
   ISubmissionTableInfo,
   ISubmissionList,
   SubmissionsByCourseId,
-} from "@/services/AssignmentService";
+} from "@/services/course/AssignmentService";
 import Link from "next/link";
 
 const SubmissionList = () => {

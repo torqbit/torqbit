@@ -523,9 +523,10 @@ model Assignment {
   updatedAt         DateTime               @default(now())
   lessonId          Int
   content           Json?
-  assignmentFiles   Json?
   submissionConfig  Json?
   estimatedDuration Int?
+  maximumPoints     Int
+  passingScore      Int
   lesson            Resource               @relation(fields: [lessonId], references: [resourceId], onDelete: Cascade)
   submission        AssignmentSubmission[]
 

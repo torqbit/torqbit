@@ -1,7 +1,7 @@
 import { Assignment, AssignmentSubmission, submissionStatus } from "@prisma/client";
-import { getDelete, getFetch, postFetch } from "./request";
+import { getDelete, getFetch, postFetch } from "../request";
 import { IAssignmentDetail } from "@/types/courses/Course";
-import { IAssignmentSubmission } from "@/types/courses/assignment";
+import { IAssignmentDetails } from "@/types/courses/assignment";
 
 export interface ISubmissionTableInfo {
   key: number;
@@ -111,7 +111,7 @@ class AssignmentSerivce {
       content?: string;
       title?: string;
       assignmentFiles?: string[];
-      submissionConfig: IAssignmentSubmission;
+      submissionConfig: IAssignmentDetails;
       isEdit: boolean;
       estimatedDuration: number;
     },

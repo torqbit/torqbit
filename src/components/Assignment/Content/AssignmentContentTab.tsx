@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import style from "@/styles/LearnLecture.module.scss";
 import PurifyContent from "../../PurifyContent/PurifyContent";
-import AssignmentService from "@/services/AssignmentService";
+import AssignmentService from "@/services/course/AssignmentService";
 import { IAssignmentDetail } from "@/types/courses/Course";
 import { Flex, message } from "antd";
 import SpinLoader from "../../SpinLoader/SpinLoader";

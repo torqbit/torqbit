@@ -1,5 +1,5 @@
 import SpinLoader from "@/components/SpinLoader/SpinLoader";
-import AssignmentService, { ISubmissionDetail } from "@/services/AssignmentService";
+import AssignmentService, { ISubmissionDetail } from "@/services/course/AssignmentService";
 import { Breadcrumb, Button, Drawer, Flex, Form, InputNumber, message, Modal, Segmented, Space } from "antd";
 import { GetServerSidePropsContext, NextPage } from "next";
 import { useRouter } from "next/router";

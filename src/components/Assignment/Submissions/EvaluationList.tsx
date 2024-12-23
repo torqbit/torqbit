@@ -1,6 +1,6 @@
 import { convertToDayMonthTime } from "@/lib/utils";
 import appConstant from "@/services/appConstant";
-import { IAllSubmmissionsDetail } from "@/services/AssignmentService";
+import { IAllSubmmissionsDetail } from "@/services/course/AssignmentService";
 import { Flex, Table } from "antd";
 import { FC, useState } from "react";
 import styles from "@/styles/AssignmentEvaluation.module.scss";
@@ -17,19 +17,19 @@ const EvaluatinoList: FC<{ loading: boolean; allSubmission: IAllSubmmissionsDeta
   const data =
     allSubmission.length > 0
       ? allSubmission
-          .sort((a, b) => b.submissionId - a.submissionId)
-          .map((s, i) => {
-            return {
-              key: i,
-              DateSubmitted: convertToDayMonthTime(new Date(s.submittedDate)),
-              score: s.score
-                ? `${s.score} / ${appConstant.assignmentMaxScore}`
-                : `- / ${appConstant.assignmentMaxScore}`,
-              pass: s.score ? (s.score >= appConstant.assignmentPassingMarks ? "YES" : "NO") : "NA",
-              isEvaluated: s.evaluated,
-              submissionId: s.submissionId,
-            };
-          })
+        .sort((a, b) => b.submissionId - a.submissionId)
+        .map((s, i) => {
+          return {
+            key: i,
+            DateSubmitted: convertToDayMonthTime(new Date(s.submittedDate)),
+            score: s.score
+              ? `${s.score} / ${appConstant.assignmentMaxScore}`
+              : `- / ${appConstant.assignmentMaxScore}`,
+            pass: s.score ? (s.score >= appConstant.assignmentPassingMarks ? "YES" : "NO") : "NA",
+            isEvaluated: s.evaluated,
+            submissionId: s.submissionId,
+          };
+        })
       : [];
   const columns: any = [
     {
