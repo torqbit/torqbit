@@ -15,14 +15,14 @@ export const config = {
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const body = req.body;
-    const { lessonId, title, content, state, assignmentFiles, estimatedDuration, submissionConfig } = body;
+    const { lessonId, estimatedDurationInMins, maximumScore, passingScore, details, title } = body;
 
     let updateAssignmentData: any = {};
 
-    if (content) updateAssignmentData.content = content;
-    if (assignmentFiles) updateAssignmentData.assignmentFiles = assignmentFiles;
-    if (estimatedDuration) updateAssignmentData.estimatedDuration = estimatedDuration;
-    if (submissionConfig) updateAssignmentData.submissionConfig = submissionConfig;
+    if (details) updateAssignmentData.content = details;
+    if (passingScore) updateAssignmentData.passingScore = passingScore;
+    if (maximumScore) updateAssignmentData.maximumPoints = maximumScore;
+    if (estimatedDurationInMins) updateAssignmentData.estimatedDuration = estimatedDurationInMins;
 
     const currentDate = new Date();
 

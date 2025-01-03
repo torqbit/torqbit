@@ -1095,3 +1095,8 @@ a {
 .ant-select .ant-select-arrow {
   color: var(--font-secondary);
 }
+
+.assignment_type_radio .ant-radio {
+  align-self: flex-start !important;
+  margin-top: 3.5px;
+}

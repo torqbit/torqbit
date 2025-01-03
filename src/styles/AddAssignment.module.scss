@@ -17,3 +17,12 @@
     color: var(--font-primary);
   }
 }
+
+.assignment_type_radio {
+  align-items: start;
+  padding: 5px;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  min-width: 228px !important;
+  width: 100%;
+}

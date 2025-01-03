@@ -1,7 +1,7 @@
 import { Assignment, AssignmentSubmission, submissionStatus } from "@prisma/client";
 import { getDelete, getFetch, postFetch } from "../request";
 import { IAssignmentDetail } from "@/types/courses/Course";
-import { IAssignmentDetails } from "@/types/courses/assignment";
+import { AssignmentCreateRequest, IAssignmentDetails } from "@/types/courses/assignment";
 
 export interface ISubmissionTableInfo {
   key: number;
@@ -106,33 +106,23 @@ class AssignmentSerivce {
   };
 
   createAssignment = (
-    assignmentData: {
-      lessonId: number;
-      content?: string;
-      title?: string;
-      assignmentFiles?: string[];
-      submissionConfig: IAssignmentDetails;
-      isEdit: boolean;
-      estimatedDuration: number;
-    },
+    assignmentData: AssignmentCreateRequest,
     onSuccess: (response: ApiResponse) => void,
     onFailure: (message: string) => void
   ) => {
-    postFetch(assignmentData, `/api/v1/resource/assignment/${assignmentData.isEdit ? "update" : "save"}`).then(
-      (result) => {
-        if (result.status == 200) {
-          result.json().then((r) => {
-            const apiResponse = r as ApiResponse;
-            onSuccess(apiResponse);
-          });
-        } else {
-          result.json().then((r) => {
-            const failedResponse = r as FailedApiResponse;
-            onFailure(failedResponse.error);
-          });
-        }
+    postFetch(assignmentData, `/api/v1/resource/assignment/save`).then((result) => {
+      if (result.status == 200) {
+        result.json().then((r) => {
+          const apiResponse = r as ApiResponse;
+          onSuccess(apiResponse);
+        });
+      } else {
+        result.json().then((r) => {
+          const failedResponse = r as FailedApiResponse;
+          onFailure(failedResponse.error);
+        });
       }
-    );
+    });
   };
   getAssignment = (
     lessonId: number,

@@ -17,7 +17,6 @@ export interface AssignmentConfig {
   previewFileName: string;
 }
 
-
 export enum AssignmentType {
   PROGRAMMING_LANG = "PROGRAMMING_LANG",
   PROGRAMMING_PROJECT = "PROGRAMMING_PROJECT",
@@ -42,8 +41,8 @@ export interface IProgrammingLangSubmission extends IAssignmentDetails {
   programmingLang: string;
   grading: {
     maxScore: number;
-    gradingParameters: Array<{ parameter: string, maxScore: number }>
-  }
+    gradingParameters: Array<{ parameter: string; maxScore: number }>;
+  };
 }
 
 export interface IProgrammingProjectSubmission extends IAssignmentDetails {
@@ -52,16 +51,20 @@ export interface IProgrammingProjectSubmission extends IAssignmentDetails {
   baseProjectArchiveUrl: string;
   grading: {
     maxScore: number;
-    gradingParameters: Array<{ parameter: string, maxScore: number }>
-  }
+    gradingParameters: Array<{ parameter: string; maxScore: number }>;
+  };
+}
+export interface Option {
+  key: string | number;
+  text: string;
 }
 
 export interface MultipleChoiceQA {
+  id: string;
   title: string;
-  description?: string
-  options: string[];
+  description?: string;
+  options: Option[];
   correctOptionIndex: number[];
-  maxScore: number;
   answerExplaination: string;
 }
 export interface MCQAssignment extends IAssignmentDetails {
@@ -75,12 +78,12 @@ export interface SubjectiveAssignment extends IAssignmentDetails {
   supportFileTypes: string[];
 }
 
-
 export interface AssignmentCreateRequest {
   lessonId: number;
-  assingmentType: AssignmentType;
+  isEdit: boolean;
   estimatedDurationInMins: number;
   maximumScore: number;
-  passingScore: number
+  passingScore: number;
   details: IAssignmentDetails;
+  title: string;
 }

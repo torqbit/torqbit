@@ -1,3 +1,4 @@
+import { Steps } from "antd";
 import { PageSiteConfig } from "./siteConstant";
 
 const antThemeConfig = (siteConfig: PageSiteConfig) => {

@@ -4,7 +4,8 @@ import { withMethods } from "@/lib/api-middlewares/with-method";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { IAssignmentDetail } from "@/types/courses/Course";
-import { IAssignmentSubmission } from "@/types/courses/assignment";
+import { JsonObject } from "@prisma/client/runtime/library";
+import { IAssignmentDetails } from "@/types/courses/assignment";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -17,9 +18,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       select: {
         content: true,
-        assignmentFiles: true,
         estimatedDuration: true,
         submissionConfig: true,
+        maximumPoints: true,
+        passingScore: true,
         id: true,
         lesson: {
           select: {
@@ -32,11 +34,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (assignmentDetail) {
       let detail: IAssignmentDetail = {
         assignmentId: assignmentDetail.id,
-        content: assignmentDetail.content as string,
-        assignmentFiles: assignmentDetail.assignmentFiles as string[],
+        content: assignmentDetail.content as any,
         name: assignmentDetail.lesson.name,
-        estimatedDuration: Number(assignmentDetail.estimatedDuration),
-        submissionConfig: assignmentDetail.submissionConfig as unknown as IAssignmentSubmission,
+        estimatedDurationInMins: Number(assignmentDetail.estimatedDuration),
+        maximumScore: assignmentDetail.maximumPoints,
+        passingScore: assignmentDetail.passingScore,
       };
       return res.json({
         success: true,
