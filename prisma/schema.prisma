@@ -150,18 +150,18 @@ model Course {
   courseType          CourseType  @default(FREE)
   certificateTemplate String?
   isActive            Boolean     @default(true)
-  coursePrice         Float?      @default(0)
+  coursePrice         Float       @default(0)
   sequenceId          Int?
   previewMode         Boolean?
 
-  expiryInDays     Int                   @default(365)
-  difficultyLevel  courseDifficultyType?
-  durationInMonths Int                   @default(12)
-  user             User                  @relation(name: "userCourse", fields: [authorId], references: [id])
-  totalResources   Int                   @default(0)
-  state            StateType             @default(DRAFT)
+  expiryInDays     Int                  @default(365)
+  difficultyLevel  courseDifficultyType @default(Beginner)
+  durationInMonths Int                  @default(12)
+  user             User                 @relation(name: "userCourse", fields: [authorId], references: [id])
+  totalResources   Int                  @default(0)
+  state            StateType            @default(DRAFT)
   chapters         Chapter[]
-  product          Product               @relation(name: "course_product", fields: [courseId], references: [productId])
+  product          Product              @relation(name: "course_product", fields: [courseId], references: [productId])
 
   courseProgress CourseProgress[]
 

@@ -6,6 +6,7 @@ import {
   CourseInfo,
   CourseLessonAPIResponse,
   ICourseDetailView,
+  ICourseListItem,
 } from "@/types/courses/Course";
 import { Chapter, Course, CourseCertificates, Resource } from "@prisma/client";
 import { postWithFile } from "./request";
@@ -287,6 +288,22 @@ class ProgramService {
       }
     });
   };
+
+  listCoursesViews = (handleResponse: (response: APIResponse<ICourseListItem[]>) => void) => {
+    fetch(`/api/v1/course/list/views`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }).then((result) => {
+      result.json().then((r) => {
+        const response = r as APIResponse<ICourseListItem[]>;
+        handleResponse(response);
+      });
+    }
+    );
+  }
 
   getCourseList = (
     courseListPreview: boolean,

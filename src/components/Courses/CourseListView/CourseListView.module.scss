@@ -1,0 +1,29 @@
+.courses__list {
+  padding: 20px;
+
+  .course__card {
+    width: 300px;
+
+    .meta {
+      & > div > div:last-child {
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    .card__footer {
+      margin: 15px -20px -20px;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .card__img {
+      width: 300px;
+      height: auto;
+      max-height: 168px;
+      object-fit: cover;
+    }
+  }
+}

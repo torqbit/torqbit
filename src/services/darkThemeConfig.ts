@@ -157,6 +157,10 @@ const darkThemeConfig = (siteConfig: PageSiteConfig) => {
         paddingLG: 20,
         colorBgElevated: "#283040",
       },
+      Tag: {
+        defaultBg: "#374362",
+        defaultColor: "#939db8",
+      },
       Collapse: {
         headerBg: "#283040",
         colorText: "#939db8",

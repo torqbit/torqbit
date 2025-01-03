@@ -19,6 +19,8 @@ import { useRouter } from "next/router";
 import { getIconTheme } from "@/services/darkThemeConfig";
 import { useAppContext } from "@/components/ContextApi/AppContext";
 import { Theme } from "@/types/theme";
+import { ICourseListItem } from "@/types/courses/Course";
+import { CoursesListView } from "@/components/Courses/CourseListView/CourseListView";
 
 const CoursesView: FC<{
   courses: Course[];
@@ -53,6 +55,7 @@ const CoursesView: FC<{
 
 const CoursesPage: NextPage<{ siteConfig: PageSiteConfig; userRole: Role }> = ({ siteConfig, userRole }) => {
   const [allCourses, setAllCourses] = useState<Course[] | undefined>([]);
+  const [courses, setCourses] = useState<ICourseListItem[]>([]);
   const [messageApi, contextMessageHolder] = message.useMessage();
   const [loading, setLoading] = useState<boolean>(false);
   const [courseLoading, setCourseLoading] = useState<boolean>(false);
@@ -62,17 +65,15 @@ const CoursesPage: NextPage<{ siteConfig: PageSiteConfig; userRole: Role }> = ({
 
   useEffect(() => {
     setLoading(true);
-    ProgramService.getCourseList(
-      true,
-      (res) => {
-        setAllCourses(res.courses);
+    ProgramService.listCoursesViews((response) => {
+      if (response.success && response.body) {
+        setCourses(response.body);
         setLoading(false);
-      },
-      (err) => {
+      } else {
+        message.error(response.message);
         setLoading(false);
-        messageApi.error(`Unable to get the courses due to ${err}`);
       }
-    );
+    });
   }, []);
 
   const addCourse = () => {
@@ -87,7 +88,6 @@ const CoursesPage: NextPage<{ siteConfig: PageSiteConfig; userRole: Role }> = ({
       },
       (error) => {
         setCourseLoading(false);
-
         messageApi.error(error);
       }
     );
@@ -99,28 +99,12 @@ const CoursesPage: NextPage<{ siteConfig: PageSiteConfig; userRole: Role }> = ({
         <AppLayout siteConfig={siteConfig}>
           {contextMessageHolder}
           <section>
-            <Flex align="center" justify="space-between" className={styles.courseContainer}>
-              <h3>Courses</h3>
-              {userRole === Role.ADMIN && allCourses && allCourses.length > 0 && (
-                <Button loading={courseLoading} onClick={addCourse} type="primary">
-                  <Flex align="center" gap={10}>
-                    <span>Add Course</span>
-                    <i style={{ lineHeight: 0 }}>{SvgIcons.arrowRight}</i>
-                  </Flex>
-                </Button>
-              )}
-            </Flex>
-            {!loading && allCourses ? (
-              <CoursesView
-                courses={allCourses}
-                role={userRole}
-                currentTheme={globalState.theme || "light"}
-                handleCourseCreate={addCourse}
-                siteConfig={siteConfig}
-              />
-            ) : (
-              <SpinLoader className="course__spinner" />
-            )}
+            <CoursesListView
+              courses={courses}
+              siteConfig={siteConfig}
+              currentTheme={globalState.theme || "light"}
+              handleCourseCreate={addCourse}
+            />
           </section>
         </AppLayout>
       ) : (
@@ -130,13 +114,12 @@ const CoursesPage: NextPage<{ siteConfig: PageSiteConfig; userRole: Role }> = ({
         >
           {contextMessageHolder}
           <section>
-            {!loading && allCourses ? (
-              <CoursesView
-                courses={allCourses}
-                role={userRole}
+            {!loading && courses ? (
+              <CoursesListView
+                courses={courses}
+                siteConfig={siteConfig}
                 currentTheme={globalState.theme || "light"}
                 handleCourseCreate={addCourse}
-                siteConfig={siteConfig}
               />
             ) : (
               <SpinLoader className="course__spinner" />

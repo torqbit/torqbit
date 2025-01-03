@@ -87,6 +87,10 @@ const antThemeConfig = (siteConfig: PageSiteConfig) => {
         controlItemBgActive: "#EEE",
         controlItemBgActiveHover: "#dcdcdc",
       },
+      Tag: {
+        defaultBg: "#eee",
+        defaultColor: "#888",
+      },
 
       Tabs: {
         inkBarColor: "#000",
