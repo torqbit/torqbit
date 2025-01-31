@@ -1,5 +1,6 @@
 import React, { FC, useState } from "react";
 import Link from "next/link";
+import DOMPurify from "dompurify";
 
 import { Badge, Drawer, Flex } from "antd";
 import styles from "./NavBar.module.scss";
@@ -139,7 +140,7 @@ const MobileNav: FC<INavBarProps> = ({ items, showThemeSwitch, activeTheme, bran
                           <Link
                             key={i}
                             style={{ color: "var(--font-secondary)" }}
-                            href={item.link}
+                            href={DOMPurify.sanitize(item.link)}
                             aria-label={`link to ${item.title}`}
                           >
                             {item.title}
