@@ -5,6 +5,7 @@ import { withMethods } from "@/lib/api-middlewares/with-method";
 import { withUserAuthorized } from "@/lib/api-middlewares/with-authorized";
 import { createSlug, getFileExtension } from "@/lib/utils";
 import fs from "fs";
+import path from "path";
 import { APIResponse } from "@/types/apis";
 import { readFieldWithSingleFile } from "@/lib/upload/utils";
 import { ContentManagementService } from "@/services/cms/ContentManagementService";
@@ -59,8 +60,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           }
 
           const extension = getFileExtension(files.file[0].originalFilename);
-          const sourcePath = files.file[0].filepath;
-          const fileBuffer = await fs.promises.readFile(`${sourcePath}`);
+          const sourcePath = path.resolve(files.file[0].filepath);
+          const safeDir = path.resolve("/var/www/uploads"); // Replace with your safe directory
+          if (!sourcePath.startsWith(safeDir)) {
+            throw new Error("Invalid file path");
+          }
+          const fileBuffer = await fs.promises.readFile(sourcePath);
           //now upload the image
           const newThumbnailResponse = await cms.uploadVideoThumbnail(
             cmsConfig,
